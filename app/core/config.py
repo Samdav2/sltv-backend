@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "changethis"
     ALGORITHM: str = "RS256"
 
+    BACKEND_CORS_ORIGINS: List[str] = []
+    ALLOWED_HOSTS: List[str] = ["*"]
+
     @property
     def JWT_PRIVATE_KEY(self) -> str:
         with open("certs/private.pem", "r") as f:
@@ -29,6 +32,12 @@ class Settings(BaseSettings):
     PAYSTACK_PUBLIC_KEY: str
     PAYSTACK_SECRET_KEY: str
     PAYSTACK_BASE_URL: str = "https://api.paystack.co"
+
+    # Mailjet Settings
+    MAIL_JET_API: str
+    MAIL_JET_SECRET: str
+    MAIL_FROM: str
+    MAIL_FROM_NAME: str = "SLTV VTU"
 
     class Config:
         case_sensitive = True

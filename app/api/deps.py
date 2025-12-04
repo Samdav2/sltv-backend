@@ -10,6 +10,7 @@ from app.core.database import get_session
 from app.models.user import User
 from app.repositories.user_repository import UserRepository
 from app.repositories.wallet_repository import WalletRepository
+from app.repositories.profile_repository import ProfileRepository
 
 reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/auth/login/access-token"
@@ -20,6 +21,9 @@ async def get_user_repository(session: AsyncSession = Depends(get_session)) -> U
 
 async def get_wallet_repository(session: AsyncSession = Depends(get_session)) -> WalletRepository:
     return WalletRepository(session)
+
+async def get_profile_repository(session: AsyncSession = Depends(get_session)) -> ProfileRepository:
+    return ProfileRepository(session)
 
 async def get_current_user(
     token: str = Depends(reusable_oauth2),
@@ -46,3 +50,16 @@ async def get_current_active_user(
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
+
+async def get_current_active_superuser(
+    current_user: User = Depends(get_current_active_user),
+) -> User:
+    if not current_user.is_superuser:
+        raise HTTPException(
+            status_code=400, detail="The user doesn't have enough privileges"
+        )
+    return current_user
+
+from app.repositories.support_repository import SupportRepository
+async def get_support_repository(session: AsyncSession = Depends(get_session)) -> SupportRepository:
+    return SupportRepository(session)

@@ -1,6 +1,6 @@
 import uuid
 from typing import Any, List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from app.api import deps
 from app.models.user import User
 from app.schemas.wallet import WalletRead
@@ -40,6 +40,7 @@ async def get_my_wallet(
 @router.post("/fund", response_model=TransactionRead)
 async def fund_wallet(
     amount: float,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(deps.get_current_active_user),
     wallet_repo: WalletRepository = Depends(deps.get_wallet_repository),
 ) -> Any:
@@ -68,6 +69,17 @@ async def fund_wallet(
     # Update wallet balance
     wallet.balance += amount
     await wallet_repo.update(wallet, {"balance": wallet.balance})
+
+    # Send Wallet Funded Email
+    from app.services.email_service import EmailService
+    EmailService.send_wallet_funded_email(
+        background_tasks,
+        current_user.email,
+        current_user.full_name,
+        amount,
+        wallet.balance,
+        transaction.reference
+    )
 
     return transaction
 
@@ -109,6 +121,7 @@ async def initialize_paystack_funding(
 @router.get("/fund/paystack/verify")
 async def verify_paystack_funding(
     reference: str,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(deps.get_current_active_user),
     wallet_repo: WalletRepository = Depends(deps.get_wallet_repository),
 ) -> Any:
@@ -145,6 +158,17 @@ async def verify_paystack_funding(
 
         wallet.balance += amount_paid
         await wallet_repo.update(wallet, {"balance": wallet.balance})
+
+        # Send Wallet Funded Email
+        from app.services.email_service import EmailService
+        EmailService.send_wallet_funded_email(
+            background_tasks,
+            current_user.email,
+            current_user.full_name,
+            amount_paid,
+            wallet.balance,
+            reference
+        )
 
         return {"status": "success", "message": "Wallet funded successfully", "amount": amount_paid}
     else:

@@ -10,3 +10,5 @@ python-jose[cryptography]
 selenium
 webdriver-manager
 requests
+mailjet-rest
+jinja2

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>New Reply to your Ticket</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
+        <h2 style="color: #007bff;">New Reply on Ticket #{{ ticket_id }}</h2>
+        <p>Hello {{ name }},</p>
+        <p>A support representative has replied to your ticket: <strong>{{ subject }}</strong>.</p>
+
+        <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+            <p><strong>Reply:</strong></p>
+            <p>{{ reply_message }}</p>
+        </div>
+
+        <p>Please log in to your dashboard to view the full conversation and reply.</p>
+
+        <p>Best regards,<br>{{ project_name }} Support Team</p>
+    </div>
+</body>
+
+</html>

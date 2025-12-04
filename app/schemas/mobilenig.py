@@ -44,6 +44,7 @@ class AirtimePurchaseRequest(BaseModel):
     service_id: str
     amount: float
     phoneNumber: str
+    admin_amount: Optional[float] = None
 
 class DataPurchaseRequest(BaseModel):
     service_id: str
@@ -51,6 +52,7 @@ class DataPurchaseRequest(BaseModel):
     amount: float
     phoneNumber: str = Field(validation_alias="customerPhoneNumber", serialization_alias="beneficiary")
     productCode: str = Field(validation_alias="productCode", serialization_alias="code")
+    admin_amount: Optional[float] = None
 
     class Config:
         populate_by_name = True
@@ -66,6 +68,7 @@ class ElectricityPurchaseRequest(BaseModel):
     customerAccountType: str
     customerDtNumber: str
     contactType: str
+    admin_amount: Optional[float] = None
 
 class CablePurchaseRequest(BaseModel):
     service_id: str
@@ -74,6 +77,7 @@ class CablePurchaseRequest(BaseModel):
     customerNumber: Optional[str] = None
     customerName: Optional[str] = None
     productCode: Optional[str] = None # Required if changing subscription
+    admin_amount: Optional[float] = None
 
 class PurchaseDetails(BaseModel):
     trans_id: str
