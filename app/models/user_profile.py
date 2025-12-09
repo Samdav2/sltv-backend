@@ -3,6 +3,7 @@ from typing import Optional
 from sqlmodel import SQLModel, Field, Relationship
 
 class UserProfileBase(SQLModel):
+    full_name: Optional[str] = None
     phone_number: Optional[str] = None
     address: Optional[str] = None
     state: Optional[str] = None

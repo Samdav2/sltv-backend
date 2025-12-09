@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from fastapi.concurrency import run_in_threadpool
 from app.api import deps
 from app.models.user import User
-from app.schemas.service import AirtimeRequest, DataRequest, ElectricityRequest, TVRequest
+from app.schemas.service import AirtimeRequest, DataRequest, ElectricityRequest, TVRequest, TVRefreshRequest
 from app.models.transaction import Transaction
 from app.repositories.wallet_repository import WalletRepository
 from app.services.automation_service import VTUAutomator
@@ -17,10 +17,12 @@ import string
 router = APIRouter()
 
 def generate_trans_id(prefix: str) -> str:
-    """Generates a unique transaction ID: PREFIX-YYYYMMDDHHMMSS-RANDOM"""
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-    return f"{prefix}-{timestamp}-{suffix}"
+    """Generates a unique transaction ID <= 15 chars for MobileNig compatibility"""
+    # MobileNig limit is 15 chars.
+    # Format: YYMMDDHHMMSS (12) + 3 random chars = 15 chars
+    timestamp = datetime.now().strftime("%y%m%d%H%M%S")
+    suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=3))
+    return f"{timestamp}{suffix}"
 
 def process_airtime_purchase(request: AirtimeRequest, transaction_id: int, wallet_repo: WalletRepository):
     # This should ideally be in a separate service method that handles DB session
@@ -105,7 +107,7 @@ async def purchase_airtime(
             "customerName": current_user.full_name or "",
             "address": current_user.profile.address if current_user.profile else ""
         }
-        response = mobilenig_service.purchase_service(payload)
+        response = await mobilenig_service.purchase_service(payload)
         transaction.status = "success"
         transaction.meta_data += f" | Response: {response}"
         await wallet_repo.update_transaction(transaction)
@@ -236,7 +238,7 @@ async def purchase_data(
             "customerName": current_user.full_name or "",
             "address": current_user.profile.address if current_user.profile else ""
         }
-        response = mobilenig_service.purchase_service(payload)
+        response = await mobilenig_service.purchase_service(payload)
         transaction.status = "success"
         transaction.meta_data += f" | Response: {response}"
         await wallet_repo.update_transaction(transaction)
@@ -379,16 +381,20 @@ async def purchase_electricity(
 
         payload = {
             "service_id": request.provider, # Assuming provider is service_id (e.g. AEDC)
-            "customerAccountId": request.meter_number,
+            "meterNumber": request.meter_number, # Correct field name per error
             "amount": cost_price,
             "trans_id": trans_id,
-            "phoneNumber": phone_number, # Added phone number from profile
+            "phoneNumber": phone_number,
+            "customerDtNumber": "0000", # Default or dummy if not available
+            "customerAddress": current_user.profile.address if current_user.profile and current_user.profile.address else "Nigeria",
+            "customerAccountType": request.type.upper(), # PREPAID or POSTPAID
+            "contactType": "LANDLORD", # Default value
             # User Data Injection
             "email": current_user.email,
             "customerName": current_user.full_name or "",
             "address": current_user.profile.address if current_user.profile else ""
         }
-        response = mobilenig_service.purchase_service(payload)
+        response = await mobilenig_service.purchase_service(payload)
         transaction.status = "success"
         transaction.meta_data += f" | Response: {response}"
         await wallet_repo.update_transaction(transaction)
@@ -476,6 +482,25 @@ async def get_tv_details(
         if not details:
              raise HTTPException(status_code=404, detail="Could not retrieve details. Please check smart card number.")
         return {"status": "success", "data": details}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/tv/refresh")
+async def refresh_tv(
+    request: TVRefreshRequest,
+    current_user: User = Depends(deps.get_current_active_user),
+):
+    """
+    Refresh TV subscription (specifically for SLTV).
+    """
+    vtu_service = VTUAutomator()
+    try:
+        # Run blocking Selenium code in a separate thread
+        result_message = await run_in_threadpool(vtu_service.refresh_tv, request)
+        if result_message:
+             return {"status": "success", "message": result_message}
+        else:
+             raise HTTPException(status_code=400, detail="Refresh failed.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

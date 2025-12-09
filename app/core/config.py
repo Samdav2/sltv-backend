@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "changethis"
     ALGORITHM: str = "RS256"
 
-    BACKEND_CORS_ORIGINS: List[str] = []
+    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000"]
     ALLOWED_HOSTS: List[str] = ["*"]
 
     @property
@@ -38,6 +38,11 @@ class Settings(BaseSettings):
     MAIL_JET_SECRET: str
     MAIL_FROM: str
     MAIL_FROM_NAME: str = "SLTV VTU"
+
+    # SLTV Settings
+    SLTV_USERNAME: str
+    SLTV_PASSWORD: str
+
 
     class Config:
         case_sensitive = True

@@ -22,5 +22,7 @@ class TVRequest(SQLModel):
     smart_card_number: str
     amount: float
     provider: str = "sltv" # Default to SLTV as requested
-    sltv_username: Optional[str] = None # For SLTV login simulation if needed
-    sltv_password: Optional[str] = None # For SLTV login simulation if needed
+
+class TVRefreshRequest(SQLModel):
+    smart_card_number: str
+    provider: str = "sltv"

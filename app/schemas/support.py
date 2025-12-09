@@ -13,7 +13,8 @@ class TicketMessageCreate(TicketMessageBase):
 class TicketMessageRead(TicketMessageBase):
     id: uuid.UUID
     ticket_id: uuid.UUID
-    sender_id: uuid.UUID
+    sender_id: Optional[uuid.UUID] = None
+    admin_id: Optional[uuid.UUID] = None
     created_at: datetime
     is_admin: bool
 

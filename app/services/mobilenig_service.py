@@ -34,13 +34,20 @@ class MobileNigService:
             try:
                 response = await client.request(method, url, headers=headers, json=data, timeout=30.0)
                 response.raise_for_status()
-                return response.json()
+                response_data = response.json()
+
+                # Check for API-level failure
+                if response_data.get("message") == "failure":
+                    error_details = response_data.get("details", "Unknown error")
+                    raise Exception(f"{error_details}")
+
+                return response_data
             except httpx.HTTPStatusError as e:
                 # In a real app, you'd want better error handling/logging here
                 if e.response is not None:
                     try:
                         error_data = e.response.json()
-                        raise Exception(f"MobileNig API Error: {error_data}")
+                        raise Exception(f"{error_data}")
                     except ValueError:
                         pass
                 raise Exception(f"Request failed: {str(e)}")

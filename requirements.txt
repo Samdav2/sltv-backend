@@ -12,3 +12,5 @@ webdriver-manager
 requests
 mailjet-rest
 jinja2
+asyncpg
+aiosqlite

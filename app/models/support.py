@@ -2,6 +2,9 @@ import uuid
 from datetime import datetime
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
+if False:
+    from app.models.user import User
+    from app.models.admin import Admin
 
 class TicketBase(SQLModel):
     subject: str
@@ -28,8 +31,10 @@ class TicketMessage(TicketMessageBase, table=True):
     __tablename__ = "ticket_message"
     id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4, primary_key=True)
     ticket_id: uuid.UUID = Field(foreign_key="ticket.id")
-    sender_id: uuid.UUID = Field(foreign_key="user.id")
+    sender_id: Optional[uuid.UUID] = Field(default=None, foreign_key="user.id")
+    admin_id: Optional[uuid.UUID] = Field(default=None, foreign_key="admin.id")
 
     # Relationships
     ticket: Optional[Ticket] = Relationship(back_populates="messages")
     sender: Optional["User"] = Relationship()
+    admin: Optional["Admin"] = Relationship()

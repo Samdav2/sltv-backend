@@ -2,6 +2,7 @@ from typing import Any, List
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.api import deps
 from app.models.user import User
+from app.models.admin import Admin
 from app.schemas.user import UserCreate, UserRead, UserUpdate
 from app.schemas.transaction import TransactionRead
 from app.repositories.user_repository import UserRepository
@@ -17,7 +18,7 @@ router = APIRouter()
 async def read_users(
     skip: int = 0,
     limit: int = 100,
-    current_user: User = Depends(deps.get_current_active_superuser),
+    current_admin: Admin = Depends(deps.get_current_active_admin),
     user_repo: UserRepository = Depends(deps.get_user_repository),
 ) -> Any:
     """
@@ -39,7 +40,7 @@ async def read_users(
 async def create_user(
     *,
     user_in: UserCreate,
-    current_user: User = Depends(deps.get_current_active_superuser),
+    current_admin: Admin = Depends(deps.get_current_active_admin),
     user_repo: UserRepository = Depends(deps.get_user_repository),
     wallet_repo: deps.WalletRepository = Depends(deps.get_wallet_repository),
 ) -> Any:
@@ -72,7 +73,7 @@ async def create_user(
 @router.get("/users/{user_id}", response_model=UserRead)
 async def read_user_by_id(
     user_id: uuid.UUID,
-    current_user: User = Depends(deps.get_current_active_superuser),
+    current_admin: Admin = Depends(deps.get_current_active_admin),
     user_repo: UserRepository = Depends(deps.get_user_repository),
 ) -> Any:
     """
@@ -88,7 +89,7 @@ async def update_user(
     *,
     user_id: uuid.UUID,
     user_in: UserUpdate,
-    current_user: User = Depends(deps.get_current_active_superuser),
+    current_admin: Admin = Depends(deps.get_current_active_admin),
     user_repo: UserRepository = Depends(deps.get_user_repository),
 ) -> Any:
     """
@@ -107,7 +108,7 @@ async def update_user(
 async def reset_user_password(
     user_id: uuid.UUID,
     new_password: str, # In query or body? Better in body usually but simpler here.
-    current_user: User = Depends(deps.get_current_active_superuser),
+    current_admin: Admin = Depends(deps.get_current_active_admin),
     user_repo: UserRepository = Depends(deps.get_user_repository),
 ) -> Any:
     """
@@ -129,7 +130,7 @@ async def reset_user_password(
 async def read_transactions(
     skip: int = 0,
     limit: int = 100,
-    current_user: User = Depends(deps.get_current_active_superuser),
+    current_admin: Admin = Depends(deps.get_current_active_admin),
     wallet_repo: WalletRepository = Depends(deps.get_wallet_repository),
 ) -> Any:
     """
@@ -148,7 +149,7 @@ async def read_transactions(
 @router.get("/transactions/{transaction_id}", response_model=TransactionRead)
 async def read_transaction(
     transaction_id: uuid.UUID,
-    current_user: User = Depends(deps.get_current_active_superuser),
+    current_admin: Admin = Depends(deps.get_current_active_admin),
     wallet_repo: WalletRepository = Depends(deps.get_wallet_repository),
 ) -> Any:
     """
@@ -171,7 +172,7 @@ from app.repositories.support_repository import SupportRepository
 async def read_all_tickets(
     skip: int = 0,
     limit: int = 100,
-    current_user: User = Depends(deps.get_current_active_superuser),
+    current_admin: Admin = Depends(deps.get_current_active_admin),
     support_repo: SupportRepository = Depends(deps.get_support_repository),
 ) -> Any:
     """
@@ -183,7 +184,7 @@ async def read_all_tickets(
 async def update_ticket_status(
     ticket_id: uuid.UUID,
     status_update: TicketUpdate,
-    current_user: User = Depends(deps.get_current_active_superuser),
+    current_admin: Admin = Depends(deps.get_current_active_admin),
     support_repo: SupportRepository = Depends(deps.get_support_repository),
 ) -> Any:
     """
@@ -196,3 +197,53 @@ async def update_ticket_status(
     update_data = status_update.dict(exclude_unset=True)
     ticket = await support_repo.update_ticket(ticket, update_data)
     return ticket
+
+from app.schemas.support import TicketMessageCreate, TicketMessageRead
+from app.models.support import TicketMessage
+from fastapi import BackgroundTasks
+from app.services.email_service import EmailService
+
+@router.post("/support/tickets/{ticket_id}/message", response_model=TicketMessageRead)
+async def reply_ticket(
+    ticket_id: uuid.UUID,
+    message_in: TicketMessageCreate,
+    background_tasks: BackgroundTasks,
+    current_admin: Admin = Depends(deps.get_current_active_admin),
+    support_repo: SupportRepository = Depends(deps.get_support_repository),
+) -> Any:
+    """
+    Reply to a ticket as admin.
+    """
+    ticket = await support_repo.get_ticket(ticket_id)
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+
+    message = TicketMessage(
+        ticket_id=ticket.id,
+        admin_id=current_admin.id,
+        sender_id=None, # Admin reply
+        message=message_in.message,
+        is_admin=True
+    )
+    await support_repo.create_message(message)
+
+    # Update ticket updated_at
+    from datetime import datetime
+    await support_repo.update_ticket(ticket, {"updated_at": datetime.utcnow()})
+
+    # Send Email Notification to User
+    # Fetch user to get email
+    from app.models.user import User
+    user = await support_repo.session.get(User, ticket.user_id)
+    if user:
+         EmailService.send_ticket_reply_email(
+            background_tasks,
+            user.email,
+            user.full_name,
+            str(ticket.id),
+            ticket.subject,
+            message_in.message,
+            is_admin_reply=True
+        )
+
+    return message

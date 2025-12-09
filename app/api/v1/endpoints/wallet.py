@@ -19,10 +19,11 @@ from app.core.config import settings
 router = APIRouter()
 
 def generate_trans_id(prefix: str) -> str:
-    """Generates a unique transaction ID: PREFIX-YYYYMMDDHHMMSS-RANDOM"""
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-    return f"{prefix}-{timestamp}-{suffix}"
+    """Generates a unique transaction ID <= 15 chars"""
+    # Format: YYMMDDHHMMSS (12) + 3 random chars = 15 chars
+    timestamp = datetime.now().strftime("%y%m%d%H%M%S")
+    suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=3))
+    return f"{timestamp}{suffix}"
 
 @router.get("/me", response_model=WalletRead)
 async def get_my_wallet(

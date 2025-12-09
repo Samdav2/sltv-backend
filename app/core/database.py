@@ -4,10 +4,31 @@ from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
 from app.core.config import settings
 
-# Use aiosqlite for async SQLite
-DATABASE_URL = settings.DATABASE_URL.replace("sqlite://", "sqlite+aiosqlite://")
+# Handle Database URL for Async Drivers
+database_url = settings.DATABASE_URL
 
-engine = create_async_engine(DATABASE_URL, echo=True, future=True)
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql+asyncpg://", 1)
+elif database_url.startswith("postgresql://"):
+    database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+elif database_url.startswith("sqlite"):
+    database_url = database_url.replace("sqlite://", "sqlite+aiosqlite://")
+
+# Engine Configuration
+engine_args = {
+    "echo": False,  # Set to False for production performance
+    "future": True,
+}
+
+# Add connection pooling for PostgreSQL
+if "postgresql" in database_url:
+    engine_args.update({
+        "pool_size": 20,
+        "max_overflow": 10,
+        "pool_pre_ping": True,  # Handles disconnected connections
+    })
+
+engine = create_async_engine(database_url, **engine_args)
 
 async def get_session() -> AsyncSession:
     async_session = sessionmaker(

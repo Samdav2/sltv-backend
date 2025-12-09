@@ -27,10 +27,12 @@ import string
 router = APIRouter()
 
 def generate_trans_id(prefix: str) -> str:
-    """Generates a unique transaction ID: PREFIX-YYYYMMDDHHMMSS-RANDOM"""
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-    return f"{prefix}-{timestamp}-{suffix}"
+    """Generates a unique transaction ID <= 15 chars for MobileNig compatibility"""
+    # MobileNig limit is 15 chars.
+    # Format: YYMMDDHHMMSS (12) + 3 random chars = 15 chars
+    timestamp = datetime.now().strftime("%y%m%d%H%M%S")
+    suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=3))
+    return f"{timestamp}{suffix}"
 
 @router.get("/balance", response_model=BalanceResponse)
 async def get_balance(
@@ -233,16 +235,13 @@ async def purchase_data(
     try:
         # Construct payload manually to ensure correct mapping
         payload = {
-            "service_id": purchase_req.productCode,
-            "phoneNumber": purchase_req.phoneNumber,
+            "service_id": purchase_req.service_id,
+            "service_type": purchase_req.service_type,
+            "code": purchase_req.productCode,
+            "beneficiary": purchase_req.phoneNumber,
             "amount": cost_price,
             "trans_id": trans_id,
-            "email": current_user.email,
-            "customerName": current_user.full_name or ""
         }
-        # Add address if available
-        if current_user.profile and current_user.profile.address:
-             payload["address"] = current_user.profile.address
 
         response = await mobilenig_service.purchase_service(payload)
 

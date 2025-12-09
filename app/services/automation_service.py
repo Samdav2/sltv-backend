@@ -11,7 +11,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoAlertPresentException, WebDriverException, InvalidSessionIdException
 
 # Import your schemas here
-from app.schemas.service import AirtimeRequest, DataRequest, ElectricityRequest, TVRequest
+from app.schemas.service import AirtimeRequest, DataRequest, ElectricityRequest, TVRequest, TVRefreshRequest
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -160,7 +161,7 @@ class VTUAutomator:
                     except Exception:
                         pass
 
-                    self._sltv_login_and_navigate(request.sltv_username, request.sltv_password)
+                    self._sltv_login_and_navigate(settings.SLTV_USERNAME, settings.SLTV_PASSWORD)
 
                     logger.info(f"Searching for IUC: {request.smart_card_number}")
                     if self._switch_to_iframe_with_element((By.ID, "keywordSearch")):
@@ -238,7 +239,7 @@ class VTUAutomator:
                     except Exception:
                         pass
 
-                    self._sltv_login_and_navigate(request.sltv_username, request.sltv_password)
+                    self._sltv_login_and_navigate(settings.SLTV_USERNAME, settings.SLTV_PASSWORD)
 
                     logger.info(f"Processing Purchase for: {request.smart_card_number}")
                     if self._switch_to_iframe_with_element((By.ID, "keywordSearch")):
@@ -276,7 +277,7 @@ class VTUAutomator:
                         try:
                             self.wait.until(EC.alert_is_present())
                             # CHANGED TO ACCEPT: 'dismiss' usually cancels the transaction. 'accept' hits OK.
-                            self.driver.switch_to.alert.accept()
+                            self.driver.switch_to.alert.dismiss()
                             logger.info("Popup Accepted.")
                         except TimeoutException:
                             logger.warning("No popup appeared.")
@@ -303,6 +304,79 @@ class VTUAutomator:
 
                     else:
                         raise Exception("Plan Selection iframe not found.")
+
+                except (InvalidSessionIdException, WebDriverException) as e:
+                    logger.warning(f"Driver crashed or invalid session (Attempt {attempt+1}/2): {e}")
+                    VTUAutomator._driver = None
+                    VTUAutomator._instance = None
+                except Exception as e:
+                    logger.error(f"TV purchase failed: {e}")
+                    return False
+            return False
+
+
+    def refresh_tv(self, request: TVRefreshRequest) -> Union[str, bool]:
+        """
+        Full Flow: Login -> Search -> Click Refresh -> Capture Success.
+        Thread-safe and Auto-Recovering.
+        """
+        with self._lock:
+            for attempt in range(2):
+                try:
+                    if not self.driver:
+                        self.setup_driver()
+
+                    try:
+                        self.driver.delete_all_cookies()
+                    except Exception:
+                        pass
+
+                    self._sltv_login_and_navigate(settings.SLTV_USERNAME, settings.SLTV_PASSWORD)
+
+                    logger.info(f"Processing Purchase for: {request.smart_card_number}")
+                    if self._switch_to_iframe_with_element((By.ID, "keywordSearch")):
+                        input_element = self.driver.find_element(By.ID, "keywordSearch")
+
+                        self.driver.execute_script(f"arguments[0].value = '{request.smart_card_number}';", input_element)
+                        self.driver.execute_script("arguments[0].dispatchEvent(new Event('input'));", input_element)
+                        self.driver.execute_script("arguments[0].dispatchEvent(new Event('change'));", input_element)
+
+                        self.driver.find_element(By.NAME, "customerSearch").click()
+
+                        result_link = self.wait.until(EC.element_to_be_clickable(
+                            (By.XPATH, "/html/body/div[5]/div[2]/div/table/tbody/tr/td[7]/a")
+                        ))
+                        self._safe_click(result_link)
+                        self.driver.switch_to.default_content()
+
+                        # Capture Success Message
+                        success_msg_xpath = "/html/body/div[1]/div"
+
+                        # Check if we need to switch to an iframe to see the message
+                        if self._switch_to_iframe_with_element((By.XPATH, success_msg_xpath)):
+                            try:
+                                msg_element = self.wait.until(EC.visibility_of_element_located((By.XPATH, success_msg_xpath)))
+                                final_message = msg_element.text
+                                logger.info(f"REFRESH COMPLETE: {final_message}")
+                                self.driver.switch_to.default_content()
+                                return final_message
+                            except TimeoutException:
+                                logger.warning("Refresh success message element found but timed out.")
+                                self.driver.switch_to.default_content()
+                                return "Refresh initiated (Message not captured)"
+                        else:
+                            # Fallback: check default content if not found in any iframe
+                            try:
+                                msg_element = self.wait.until(EC.visibility_of_element_located((By.XPATH, success_msg_xpath)))
+                                final_message = msg_element.text
+                                logger.info(f"REFRESH COMPLETE (Default Content): {final_message}")
+                                return final_message
+                            except TimeoutException:
+                                logger.warning("Refresh success message not found in iframes or default content.")
+                                return "Refresh initiated (Message not captured)"
+                    else:
+                        raise Exception("Search iframe not found.")
+
 
                 except (InvalidSessionIdException, WebDriverException) as e:
                     logger.warning(f"Driver crashed or invalid session (Attempt {attempt+1}/2): {e}")

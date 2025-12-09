@@ -11,7 +11,7 @@ class BaseRepository(Generic[ModelType]):
         self.model = model
 
     async def get(self, id: Any) -> Optional[ModelType]:
-        stmt = select(User).where(User.id == id)
+        stmt = select(self.model).where(self.model.id == id)
         payload = await self.session.exec(stmt)
         result = payload.first()
         return result
