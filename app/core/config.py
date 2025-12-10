@@ -16,11 +16,17 @@ class Settings(BaseSettings):
 
     @property
     def JWT_PRIVATE_KEY(self) -> str:
+        key = os.getenv("JWT_PRIVATE_KEY")
+        if key:
+            return key.replace("\\n", "\n")
         with open("certs/private.pem", "r") as f:
             return f.read()
 
     @property
     def JWT_PUBLIC_KEY(self) -> str:
+        key = os.getenv("JWT_PUBLIC_KEY")
+        if key:
+            return key.replace("\\n", "\n")
         with open("certs/public.pem", "r") as f:
             return f.read()
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
