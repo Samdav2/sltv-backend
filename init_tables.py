@@ -26,6 +26,10 @@ from app.core.database import init_db
 from app.models.user import User # Ensure User model is registered
 from app.models.support import Ticket, TicketMessage # Ensure models are registered
 from app.models.admin import Admin # Ensure Admin model is registered
+from app.models.user_profile import UserProfile # Ensure UserProfile model is registered
+from app.models.service_price import ServicePrice # Ensure ServicePrice model is registered
+from app.models.transaction import Transaction # Ensure Transaction model is registered
+from app.models.wallet import Wallet # Ensure Wallet model is registered
 
 async def main():
     print("Initializing database tables...")
