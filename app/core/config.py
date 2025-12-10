@@ -50,7 +50,19 @@ class Settings(BaseSettings):
 
     # SLTV Settings
     SLTV_USERNAME: str
+    SLTV_USERNAME: str
     SLTV_PASSWORD: str
+
+    # VTpass Settings
+    VTPASS_API_KEY: str = ""
+    VTPASS_PUBLIC_KEY: str = ""
+    VTPASS_SECRET_KEY: str = ""
+    VTPASS_BASE_URL: str = "https://sandbox.vtpass.com/api"
+
+    # eBills Africa Settings
+    EBILLS_USERNAME: str = ""
+    EBILLS_PASSWORD: str = ""
+    EBILLS_BASE_URL: str = "https://ebills.africa/wp-json"
 
 
     class Config:

@@ -18,6 +18,11 @@ class ElectricityRequest(SQLModel):
     provider: str
     type: str = "prepaid"  # prepaid or postpaid
 
+class ElectricityVerifyRequest(SQLModel):
+    meter_number: str
+    provider: str
+    type: str = "prepaid"
+
 class TVRequest(SQLModel):
     smart_card_number: str
     amount: float

@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, users, wallet, services, mobilenig, profile, price, admin, support, admin_auth
+from app.api.v1.endpoints import auth, users, wallet, services, mobilenig, profile, price, admin, support, admin_auth, enugu_electricity
 
 api_router = APIRouter()
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
@@ -12,3 +12,4 @@ api_router.include_router(price.router, prefix="/price", tags=["price"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
 api_router.include_router(admin_auth.router, prefix="/admin/auth", tags=["admin-auth"])
 api_router.include_router(support.router, prefix="/support", tags=["support"])
+api_router.include_router(enugu_electricity.router, prefix="/enugu-electricity", tags=["enugu-electricity"])
