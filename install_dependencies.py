@@ -20,7 +20,8 @@ packages = [
     "asyncpg",
     "aiosqlite",
     "slowapi",
-    "email-validator"
+    "email-validator",
+    "httpx"
 ]
 
 def install(package):
