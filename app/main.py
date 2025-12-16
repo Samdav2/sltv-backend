@@ -6,6 +6,40 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from app.core.config import settings
 from app.core.limiter import limiter
+import logging
+import sys
+import os
+
+# --- Logging Configuration ---
+# Create a logger
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+# Create a file handler that logs even debug messages
+log_file_path = os.path.join(os.getcwd(), "error.log")
+file_handler = logging.FileHandler(log_file_path)
+file_handler.setLevel(logging.INFO)
+
+# Create a console handler with a higher log level
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(logging.INFO)
+
+# Create a formatter and add it to the handlers
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+console_handler.setFormatter(formatter)
+
+# Add the handlers to the logger
+# Remove existing handlers to avoid duplicates if reloaded
+if logger.hasHandlers():
+    logger.handlers.clear()
+
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
+
+logger.info("Starting Application...")
+logger.info(f"Logging to: {log_file_path}")
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

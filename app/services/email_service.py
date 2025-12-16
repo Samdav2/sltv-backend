@@ -1,5 +1,8 @@
-from mailjet_rest import Client
-from fastapi import BackgroundTasks, HTTPException
+import smtplib
+import ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from fastapi import BackgroundTasks
 from pydantic import EmailStr
 from typing import Dict, Any
 import logging
@@ -9,28 +12,20 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-# Initialize Mailjet Client
-if not all([settings.MAIL_JET_API, settings.MAIL_JET_SECRET, settings.MAIL_FROM]):
-    logger.error("Missing Mailjet credentials in settings (MAIL_JET_API, MAIL_JET_SECRET, MAIL_FROM)")
-
-mailjet = Client(auth=(settings.MAIL_JET_API, settings.MAIL_JET_SECRET), version='v3.1')
-
 # Initialize Jinja2 Template Loader
 TEMPLATE_FOLDER = Path("app/templates")
 if not TEMPLATE_FOLDER.exists():
     logger.error(f"Email template folder not found at: {TEMPLATE_FOLDER.resolve()}")
-    # We don't raise here to avoid crashing the app on startup if templates are missing,
-    # but sending emails will fail.
 
 template_loader = jinja2.FileSystemLoader(searchpath=TEMPLATE_FOLDER)
 template_env = jinja2.Environment(loader=template_loader, autoescape=True)
 
-logger.info(f"Mailjet Email Service initialized. Reading templates from: {TEMPLATE_FOLDER.resolve()}")
+logger.info(f"SMTP Email Service initialized. Reading templates from: {TEMPLATE_FOLDER.resolve()}")
 
 class EmailService:
     """
     Service to send all application emails asynchronously via background tasks
-    using the Mailjet REST API and Jinja2 for templating.
+    using SMTP and Jinja2 for templating.
     """
 
     @staticmethod
@@ -54,46 +49,46 @@ class EmailService:
         template_name: str
     ):
         """
-        Internal helper to construct and send an email message via Mailjet.
+        Internal helper to construct and send an email message via SMTP.
         """
-
         html_part = EmailService._render_template(template_name, template_body)
 
-        text_part = f"SLTV VTU | {subject}\n\n"
+        text_part = f"EZY VTU | {subject}\n\n"
         text_part += f"This email requires an HTML-compatible client. Please view this message in a modern email client."
         if template_body.get("title"):
              text_part = f"{template_body.get('title')}\n\n(Please view in an HTML-compatible client)"
 
-        message_data = {
-            'Messages': [
-                {
-                    "From": {
-                        "Email": settings.MAIL_FROM,
-                        "Name": settings.MAIL_FROM_NAME
-                    },
-                    "To": [
-                        {
-                            "Email": email_to,
-                            "Name": template_body.get("name", template_body.get("user_name", "Valued User"))
-                        }
-                    ],
-                    "Subject": f"SLTV VTU | {subject}",
-                    "TextPart": text_part,
-                    "HTMLPart": html_part
-                }
-            ]
-        }
+        # Create message
+        message = MIMEMultipart("alternative")
+        message["Subject"] = f"EZY VTU | {subject}"
+        message["From"] = f"{settings.MAIL_FROM_NAME} <{settings.MAIL_FROM}>"
+        message["To"] = email_to
+
+        # Add text and HTML parts
+        part1 = MIMEText(text_part, "plain")
+        part2 = MIMEText(html_part, "html")
+        message.attach(part1)
+        message.attach(part2)
 
         try:
-            result = mailjet.send.create(data=message_data)
-            if result.status_code == 200:
-                logger.info(f"Email sent successfully to {email_to} with template {template_name} (Status: {result.status_code})")
+            # Create SSL context
+            context = ssl.create_default_context()
+
+            if settings.SMTP_USE_SSL:
+                # Use SSL directly (port 465)
+                with smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT, context=context) as server:
+                    server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                    server.sendmail(settings.MAIL_FROM, email_to, message.as_string())
             else:
-                logger.warning(f"Failed to send email to {email_to} (Status: {result.status_code}, Response: {result.json()})")
+                # Use STARTTLS (port 587)
+                with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
+                    server.starttls(context=context)
+                    server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                    server.sendmail(settings.MAIL_FROM, email_to, message.as_string())
+
+            logger.info(f"Email sent successfully to {email_to} with template {template_name}")
         except Exception as e:
             logger.error(f"Exception while sending email to {email_to}: {e}")
-            # We log the error but don't raise it to avoid crashing the background task worker completely
-            # However, depending on requirements, we might want to retry or alert.
 
     @staticmethod
     def _add_task(
@@ -121,9 +116,9 @@ class EmailService:
         """1. (User) Sent on initial user registration."""
         EmailService._add_task(
             background_tasks,
-            "Welcome to Jargon!",
+            "Welcome to EZY VTU!",
             email_to,
-            {"title": "Welcome to Jargon!", "name": name},
+            {"title": "Welcome to EZY VTU!", "name": name},
             "user_welcome.html"
         )
 
@@ -199,7 +194,7 @@ class EmailService:
         """5. (User/Org) Security notice sent to the *old* email address."""
         EmailService._add_task(
             background_tasks,
-            "Security Alert: Your Jargon Email Was Changed",
+            "Security Alert: Your EZY VTU Email Was Changed",
             email_to,
             {"title": "Email Changed", "user_name": name, "new_email": email_to, "old_email": old_email},
             "email_change_notice.html"
