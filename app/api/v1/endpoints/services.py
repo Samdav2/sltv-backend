@@ -580,7 +580,6 @@ def process_tv_purchase(request: TVRequest, transaction_id: int, wallet_repo: Wa
 @router.post("/tv/details")
 async def get_tv_details(
     request: TVRequest,
-    current_user: User = Depends(deps.get_current_active_user),
 ):
     """
     Get TV user details (specifically for SLTV).
@@ -598,7 +597,6 @@ async def get_tv_details(
 @router.post("/tv/refresh")
 async def refresh_tv(
     request: TVRefreshRequest,
-    current_user: User = Depends(deps.get_current_active_user),
 ):
     """
     Refresh TV subscription (specifically for SLTV).
