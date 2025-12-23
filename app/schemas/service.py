@@ -26,7 +26,8 @@ class ElectricityVerifyRequest(SQLModel):
 class TVRequest(SQLModel):
     smart_card_number: str
     amount: float
-    provider: str = "sltv" # Default to SLTV as requested
+    provider: str = "sltv"
+    value: int
 
 class TVRefreshRequest(SQLModel):
     smart_card_number: str
