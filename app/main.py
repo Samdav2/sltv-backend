@@ -43,7 +43,9 @@ logger.info(f"Logging to: {log_file_path}")
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    openapi_url=None,
+    docs_url=None,
+    redoc_url=None
 )
 
 # Set all CORS enabled origins

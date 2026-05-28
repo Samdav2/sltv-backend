@@ -43,6 +43,7 @@ async def login_access_token(
         ),
         "token_type": "bearer",
         "name": user.full_name,
+        'email': user.email,
     }
 
 @router.post("/verify-email")

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Request
 from fastapi.concurrency import run_in_threadpool
 from app.api import deps
 from app.models.user import User
@@ -584,16 +584,21 @@ async def get_tv_details(
 ):
     """
     Get TV user details (specifically for SLTV).
+    Uses local automation service.
     """
-    vtu_service = VTUAutomator()
+    def run_automation():
+        vtu_service = VTUAutomator()
+        return vtu_service.get_sltv_user_details(request)
+
     try:
-        # Run blocking Selenium code in a separate thread
-        details = await run_in_threadpool(vtu_service.get_sltv_user_details, request)
-        if not details:
-             raise HTTPException(status_code=404, detail="Could not retrieve details. Please check smart card number.")
-        return {"status": "success", "data": details}
+        details = await run_in_threadpool(run_automation)
+        if details is False:
+            raise HTTPException(status_code=400, detail="Could not retrieve user details")
+        return details
+    except HTTPException as he:
+        raise he
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Local Automation Error: {str(e)}")
 
 @router.post("/tv/refresh")
 async def refresh_tv(
@@ -602,17 +607,21 @@ async def refresh_tv(
 ):
     """
     Refresh TV subscription (specifically for SLTV).
+    Uses local automation service.
     """
-    vtu_service = VTUAutomator()
+    def run_automation():
+        vtu_service = VTUAutomator()
+        return vtu_service.refresh_tv(request)
+
     try:
-        # Run blocking Selenium code in a separate thread
-        result_message = await run_in_threadpool(vtu_service.refresh_tv, request)
-        if result_message:
-             return {"status": "success", "message": result_message}
-        else:
-             raise HTTPException(status_code=400, detail="Refresh failed.")
+        result = await run_in_threadpool(run_automation)
+        if result is False:
+            raise HTTPException(status_code=400, detail="Refresh failed")
+        return {"status": "success", "message": result}
+    except HTTPException as he:
+        raise he
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Local Automation Error: {str(e)}")
 
 @router.post("/tv")
 async def purchase_tv(
@@ -623,7 +632,9 @@ async def purchase_tv(
 ):
     """
     Purchase TV subscription (e.g. SLTV).
+    Uses Local Automation Service.
     """
+    # 1. Check Balance
     wallet = await wallet_repo.get_by_user_id(current_user.id)
     if not wallet:
         raise HTTPException(status_code=404, detail="Wallet not found")
@@ -631,6 +642,7 @@ async def purchase_tv(
     if wallet.balance < request.amount:
         raise HTTPException(status_code=400, detail="Insufficient funds")
 
+    # 2. Deduct Balance immediately
     wallet.balance -= request.amount
     await wallet_repo.update(wallet, {"balance": wallet.balance})
 
@@ -644,21 +656,23 @@ async def purchase_tv(
         status="processing",
         reference=f"TV-{wallet.id}-{request.smart_card_number}",
         service_type="tv",
-        meta_data=f"Provider: {request.provider}"
+        meta_data=f"Provider: {request.provider}",
+        profit=0.0
     )
     await wallet_repo.create_transaction(transaction)
 
-    # Execute purchase synchronously
-    vtu_service = VTUAutomator()
     from app.services.email_service import EmailService
-    try:
-        # Run blocking Selenium code in a separate thread
-        result_message = await run_in_threadpool(vtu_service.purchase_tv, request)
 
-        if result_message:
-            # Success
+    def run_automation():
+        vtu_service = VTUAutomator()
+        return vtu_service.purchase_tv(request)
+
+    try:
+        result_message = await run_in_threadpool(run_automation)
+
+        if result_message is not False:
             transaction.status = "success"
-            transaction.meta_data += f" | Result: {result_message}"
+            transaction.meta_data += f" | Local Automation Result: {result_message}"
             await wallet_repo.update_transaction(transaction)
 
             # Send Success Email
@@ -674,55 +688,9 @@ async def purchase_tv(
 
             return {"status": "success", "message": result_message, "transaction_id": transaction.id}
         else:
-            # Failed
-            transaction.status = "failed"
-            transaction.meta_data += " | Result: Failed to capture success message or error occurred."
-            await wallet_repo.update_transaction(transaction)
-
-            # Send Failed Email
-            EmailService.send_purchase_failed_email(
-                background_tasks,
-                current_user.email,
-                current_user.full_name,
-                f"TV {request.provider} {request.amount}",
-                request.amount,
-                transaction.reference,
-                "Failed to capture success message"
-            )
-
-            # Refund the user
-            wallet.balance += request.amount
-            await wallet_repo.update(wallet, {"balance": wallet.balance})
-
-            # Create refund transaction
-            refund_trans_id = generate_trans_id("REFUND")
-            refund_transaction = Transaction(
-                wallet_id=wallet.id,
-                user_id=current_user.id,
-                trans_id=refund_trans_id,
-                amount=request.amount,
-                type="credit",
-                status="success",
-                reference=f"REFUND-{transaction.id}",
-                service_type="refund",
-                meta_data=f"Refund for failed TV transaction {transaction.id}"
-            )
-            await wallet_repo.create_transaction(refund_transaction)
-
-            # Send Refund Email
-            EmailService.send_refund_email(
-                background_tasks,
-                current_user.email,
-                current_user.full_name,
-                f"TV {request.provider} {request.amount}",
-                request.amount,
-                refund_transaction.reference
-            )
-
-            raise HTTPException(status_code=400, detail="Transaction failed. Your wallet has been refunded.")
+            raise Exception("Local Automation returned False (failed)")
 
     except Exception as e:
-        # Exception occurred
         transaction.status = "failed"
         transaction.meta_data += f" | Error: {str(e)}"
         await wallet_repo.update_transaction(transaction)
@@ -738,7 +706,7 @@ async def purchase_tv(
             str(e)
         )
 
-        # Refund the user
+        # Refund
         wallet.balance += request.amount
         await wallet_repo.update(wallet, {"balance": wallet.balance})
 
@@ -752,7 +720,8 @@ async def purchase_tv(
             status="success",
             reference=f"REFUND-{transaction.id}",
             service_type="refund",
-            meta_data=f"Refund for failed TV transaction {transaction.id}"
+            meta_data=f"Refund for failed TV transaction {transaction.id}",
+            profit=0.0
         )
         await wallet_repo.create_transaction(refund_transaction)
 
@@ -766,4 +735,4 @@ async def purchase_tv(
             refund_transaction.reference
         )
 
-        raise HTTPException(status_code=500, detail=f"Transaction failed with error: {str(e)}. Your wallet has been refunded.")
+        raise HTTPException(status_code=400, detail=f"Transaction failed: {str(e)}")

@@ -1,0 +1,63 @@
+2025-12-16 23:29:33,433 - root - INFO - Starting Application...
+2025-12-16 23:29:33,435 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2025-12-16 23:29:34,604 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2025-12-17 00:12:48,527 - root - INFO - Starting Application...
+2025-12-17 00:12:48,527 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2025-12-17 00:12:49,716 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-05-27 20:37:28,492 - root - INFO - Starting Application...
+2026-05-27 20:37:28,493 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-05-27 20:37:29,401 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-05-27 21:10:00,188 - root - INFO - Starting Application...
+2026-05-27 21:10:00,188 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-05-27 21:10:00,811 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-05-27 21:11:42,809 - WDM - INFO - ====== WebDriver manager ======
+2026-05-27 21:11:42,945 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-05-27 21:11:48,798 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-05-27 21:11:49,514 - WDM - INFO - There is no [linux64] chromedriver "143.0.7499.192" for browser google-chrome "143.0.7499" in cache
+2026-05-27 21:11:49,515 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-05-27 21:11:51,331 - WDM - INFO - WebDriver version 143.0.7499.192 selected
+2026-05-27 21:11:51,362 - WDM - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/143.0.7499.192/linux64/chromedriver-linux64.zip
+2026-05-27 21:11:51,365 - WDM - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/143.0.7499.192/linux64/chromedriver-linux64.zip
+2026-05-27 21:11:51,855 - WDM - INFO - Driver downloading response is 200
+2026-05-27 21:11:55,361 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-05-27 21:11:56,268 - WDM - INFO - Driver has been saved in cache [/home/rehack/.wdm/drivers/chromedriver/linux64/143.0.7499.192]
+2026-05-27 21:11:57,033 - app.services.automation_service - INFO - High-Performance WebDriver initialized (Singleton).
+2026-05-27 21:11:57,039 - app.services.automation_service - INFO - Navigating to SLTV Login...
+2026-05-27 21:12:01,152 - app.services.automation_service - INFO - Login successful. Navigating to Recharge page...
+2026-05-27 21:12:01,278 - app.services.automation_service - INFO - Searching for IUC: SB101231017219
+2026-05-27 21:12:03,506 - app.services.automation_service - INFO - Extracting user details...
+2026-05-27 21:12:03,580 - app.services.automation_service - INFO - Detail [can_id]: 177310000002
+2026-05-27 21:12:03,641 - app.services.automation_service - INFO - Detail [subscriber_name]: izunna paulinus nwaikwu
+2026-05-27 21:12:03,668 - app.services.automation_service - INFO - Detail [mobile_no]: 7034488027
+2026-05-27 21:12:03,713 - app.services.automation_service - INFO - Detail [email]: Iz-1@gmail.com
+2026-05-27 21:12:03,754 - app.services.automation_service - INFO - Detail [address]: ,,,,-42010
+2026-05-27 21:12:35,112 - app.services.automation_service - INFO - Navigating to SLTV Login...
+2026-05-27 21:12:37,237 - app.services.automation_service - INFO - Normal click failed. Forcing JS Click...
+2026-05-27 21:12:38,091 - app.services.automation_service - INFO - Login successful. Navigating to Recharge page...
+2026-05-27 21:12:38,216 - app.services.automation_service - INFO - Searching for IUC: SB101231017219
+2026-05-27 21:12:40,165 - app.services.automation_service - INFO - Extracting user details...
+2026-05-27 21:12:40,220 - app.services.automation_service - INFO - Detail [can_id]: 177310000002
+2026-05-27 21:12:40,260 - app.services.automation_service - INFO - Detail [subscriber_name]: izunna paulinus nwaikwu
+2026-05-27 21:12:40,288 - app.services.automation_service - INFO - Detail [mobile_no]: 7034488027
+2026-05-27 21:12:40,338 - app.services.automation_service - INFO - Detail [email]: Iz-1@gmail.com
+2026-05-27 21:12:40,404 - app.services.automation_service - INFO - Detail [address]: ,,,,-42010
+2026-05-27 21:20:33,017 - app.services.automation_service - INFO - Navigating to SLTV Login...
+2026-05-27 21:20:36,657 - app.services.automation_service - INFO - Normal click failed. Forcing JS Click...
+2026-05-27 21:20:37,579 - app.services.automation_service - INFO - Login successful. Navigating to Recharge page...
+2026-05-27 21:20:37,873 - app.services.automation_service - INFO - Searching for IUC: SB101231017219
+2026-05-27 21:20:39,685 - app.services.automation_service - INFO - Extracting user details...
+2026-05-27 21:20:40,369 - app.services.automation_service - INFO - Detail [can_id]: 177310000002
+2026-05-27 21:20:40,421 - app.services.automation_service - INFO - Detail [subscriber_name]: izunna paulinus nwaikwu
+2026-05-27 21:20:40,470 - app.services.automation_service - INFO - Detail [mobile_no]: 7034488027
+2026-05-27 21:20:40,515 - app.services.automation_service - INFO - Detail [email]: Iz-1@gmail.com
+2026-05-27 21:20:40,537 - app.services.automation_service - INFO - Detail [address]: ,,,,-42010
+2026-05-27 21:21:50,999 - app.services.automation_service - INFO - Navigating to SLTV Login...
+2026-05-27 21:21:54,678 - app.services.automation_service - INFO - Normal click failed. Forcing JS Click...
+2026-05-27 21:21:58,387 - app.services.automation_service - INFO - Login successful. Navigating to Recharge page...
+2026-05-27 21:21:58,583 - app.services.automation_service - INFO - Searching for IUC: SB101231017219
+2026-05-27 21:22:00,669 - app.services.automation_service - INFO - Extracting user details...
+2026-05-27 21:22:00,725 - app.services.automation_service - INFO - Detail [can_id]: 177310000002
+2026-05-27 21:22:00,766 - app.services.automation_service - INFO - Detail [subscriber_name]: izunna paulinus nwaikwu
+2026-05-27 21:22:00,805 - app.services.automation_service - INFO - Detail [mobile_no]: 7034488027
+2026-05-27 21:22:00,836 - app.services.automation_service - INFO - Detail [email]: Iz-1@gmail.com
+2026-05-27 21:22:00,873 - app.services.automation_service - INFO - Detail [address]: ,,,,-42010
