@@ -1,5 +1,6 @@
 fastapi
 uvicorn[standard]
+gunicorn
 sqlmodel
 alembic
 pydantic-settings
@@ -8,6 +9,7 @@ passlib[bcrypt]
 bcrypt==3.2.2
 python-jose[cryptography]
 selenium
+webdriver-manager
 playwright
 requests
 mailjet-rest
@@ -16,3 +18,4 @@ asyncpg
 aiosqlite
 slowapi
 email-validator
+httpx

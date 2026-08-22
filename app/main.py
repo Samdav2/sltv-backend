@@ -6,6 +6,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from app.core.config import settings
 from app.core.limiter import limiter
+from app.core.database import init_db
 import logging
 import sys
 import os
@@ -71,6 +72,10 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 from app.api.v1.api import api_router
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+@app.on_event("startup")
+async def startup_event() -> None:
+    await init_db()
 
 @app.get("/")
 def root():

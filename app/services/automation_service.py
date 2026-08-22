@@ -127,6 +127,21 @@ class VTUAutomator:
             pass
         return False
 
+    def _select_available_plan(self):
+        """Select the first plan row that is not marked inactive/deactive."""
+        plan_inputs = self.driver.find_elements(By.XPATH, "//*[@id='rechagestblist']//input[@type='radio' and @name='chk[]']")
+        if not plan_inputs:
+            raise Exception("No recharge plan radios found on the SLTV page.")
+
+        for plan_input in plan_inputs:
+            row = plan_input.find_element(By.XPATH, "./ancestor::tr")
+            row_text = row.text.lower()
+            if "deactive" not in row_text and "inactive" not in row_text:
+                self._safe_click(plan_input)
+                return plan_input
+
+        raise Exception("No active recharge package is currently available for this subscriber.")
+
     def _sltv_login_and_navigate(self, username, password):
         """Helper: Handles Login and Navigation to Recharge Page"""
         logger.info("Navigating to SLTV Login...")
@@ -260,14 +275,16 @@ class VTUAutomator:
                         raise Exception("Search iframe not found.")
 
                     logger.info("Selecting Plan...")
-                    plan_xpath = "//*[@id='rechagestblist']/table/tbody/tr[2]/td[2]/input"
+                    if request.amount == 500:
+                        plan_xpath = "//*[@id='rechagestblist']/table/tbody/tr[2]/td[2]/input"
+                    else:
+                        plan_xpath = "//*[@id='rechagestblist']/table/tbody/tr[1]/td[2]/input"
                     recharge_btn_xpath = "//*[@id='recharge']"
                     success_msg_xpath = "//*[@id='error']/div"
 
                     if self._switch_to_iframe_with_element((By.XPATH, plan_xpath)):
-                        # --- A. Click Plan (Safe Click) ---
-                        plan_element = self.wait.until(EC.presence_of_element_located((By.XPATH, plan_xpath)))
-                        self._safe_click(plan_element)
+                        # --- A. Select a usable plan (Safe Click) ---
+                        plan_element = self._select_available_plan()
 
                         # --- B. Click Recharge (Safe Click) ---
                         recharge_btn = self.wait.until(EC.presence_of_element_located((By.XPATH, recharge_btn_xpath)))
@@ -277,7 +294,7 @@ class VTUAutomator:
                         try:
                             self.wait.until(EC.alert_is_present())
                             # CHANGED TO ACCEPT: 'dismiss' usually cancels the transaction. 'accept' hits OK.
-                            self.driver.switch_to.alert.dismiss()
+                            self.driver.switch_to.alert.accept()
                             logger.info("Popup Accepted.")
                         except TimeoutException:
                             logger.warning("No popup appeared.")

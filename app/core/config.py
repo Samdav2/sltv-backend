@@ -19,6 +19,7 @@ class Settings(BaseSettings):
         "https://sltv-frontend.vercel.app"
     ]
     ALLOWED_HOSTS: List[str] = ["*"]
+    FRONTEND_URL: str = os.getenv("FRONTEND_URL", "https://ezyvtu.com.ng")
 
     @property
     def JWT_PRIVATE_KEY(self) -> str:

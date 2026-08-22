@@ -85,7 +85,8 @@ async def forgot_password(
 
     token = security.create_email_token(email, "reset")
     from app.services.email_service import email_service
-    reset_link = f"https://sltv-frontend.vercel.app/reset-password?token={token}"
+    frontend_url = getattr(settings, "FRONTEND_URL", "https://ezyvtu.com.ng")
+    reset_link = f"{frontend_url}/reset-password?token={token}"
     email_service.send_password_reset_email(background_tasks, email, user.full_name or "User", reset_link)
 
     return {"message": "If the email exists, a reset link has been sent."}

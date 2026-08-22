@@ -61,3 +61,296 @@
 2026-05-27 21:22:00,805 - app.services.automation_service - INFO - Detail [mobile_no]: 7034488027
 2026-05-27 21:22:00,836 - app.services.automation_service - INFO - Detail [email]: Iz-1@gmail.com
 2026-05-27 21:22:00,873 - app.services.automation_service - INFO - Detail [address]: ,,,,-42010
+2026-07-04 19:21:38,523 - root - INFO - Starting Application...
+2026-07-04 19:21:38,523 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-04 19:21:39,177 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-04 19:21:39,728 - passlib.handlers.bcrypt - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/rehack/anaconda3/lib/python3.13/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-07-04 19:21:49,297 - app.services.email_service - ERROR - Exception while sending email to test@example.com: {'test@example.com': (550, b'The mail server could not deliver mail to test@example.com.  The account or\ndomain may not exist, they may be blacklisted, or missing the proper dns\nentries.')}
+2026-07-04 19:21:51,550 - app.services.email_service - ERROR - Exception while sending email to test@example.com: {'test@example.com': (550, b'The mail server could not deliver mail to test@example.com.  The account or\ndomain may not exist, they may be blacklisted, or missing the proper dns\nentries.')}
+2026-07-04 19:21:51,558 - httpx - INFO - HTTP Request: POST http://testserver/api/v1/users/ "HTTP/1.1 200 OK"
+2026-07-04 19:21:54,317 - app.services.email_service - ERROR - Exception while sending email to test@example.com: {'test@example.com': (550, b'The mail server could not deliver mail to test@example.com.  The account or\ndomain may not exist, they may be blacklisted, or missing the proper dns\nentries.')}
+2026-07-04 19:21:56,773 - app.services.email_service - ERROR - Exception while sending email to test@example.com: {'test@example.com': (550, b'The mail server could not deliver mail to test@example.com.  The account or\ndomain may not exist, they may be blacklisted, or missing the proper dns\nentries.')}
+2026-07-04 19:21:56,776 - httpx - INFO - HTTP Request: POST http://testserver/api/v1/users/ "HTTP/1.1 200 OK"
+2026-07-04 19:21:57,210 - httpx - INFO - HTTP Request: POST http://testserver/api/v1/auth/login/access-token "HTTP/1.1 200 OK"
+2026-07-04 19:21:59,951 - app.services.email_service - ERROR - Exception while sending email to test@example.com: {'test@example.com': (550, b'The mail server could not deliver mail to test@example.com.  The account or\ndomain may not exist, they may be blacklisted, or missing the proper dns\nentries.')}
+2026-07-04 19:22:02,098 - app.services.email_service - ERROR - Exception while sending email to test@example.com: {'test@example.com': (550, b'The mail server could not deliver mail to test@example.com.  The account or\ndomain may not exist, they may be blacklisted, or missing the proper dns\nentries.')}
+2026-07-04 19:22:02,104 - httpx - INFO - HTTP Request: POST http://testserver/api/v1/users/ "HTTP/1.1 200 OK"
+2026-07-04 19:22:02,537 - httpx - INFO - HTTP Request: POST http://testserver/api/v1/auth/login/access-token "HTTP/1.1 200 OK"
+2026-07-04 19:22:04,453 - app.services.email_service - ERROR - Exception while sending email to test@example.com: {'test@example.com': (550, b'The mail server could not deliver mail to test@example.com.  The account or\ndomain may not exist, they may be blacklisted, or missing the proper dns\nentries.')}
+2026-07-04 19:22:04,457 - httpx - INFO - HTTP Request: POST http://testserver/api/v1/wallet/fund?amount=500 "HTTP/1.1 200 OK"
+2026-07-04 19:22:06,985 - app.services.email_service - ERROR - Exception while sending email to test@example.com: {'test@example.com': (550, b'The mail server could not deliver mail to test@example.com.  The account or\ndomain may not exist, they may be blacklisted, or missing the proper dns\nentries.')}
+2026-07-04 19:22:08,959 - app.services.email_service - ERROR - Exception while sending email to test@example.com: {'test@example.com': (550, b'The mail server could not deliver mail to test@example.com.  The account or\ndomain may not exist, they may be blacklisted, or missing the proper dns\nentries.')}
+2026-07-04 19:22:08,963 - httpx - INFO - HTTP Request: POST http://testserver/api/v1/users/ "HTTP/1.1 200 OK"
+2026-07-04 19:22:09,400 - httpx - INFO - HTTP Request: POST http://testserver/api/v1/auth/login/access-token "HTTP/1.1 200 OK"
+2026-07-04 19:22:11,724 - app.services.email_service - ERROR - Exception while sending email to test@example.com: {'test@example.com': (550, b'The mail server could not deliver mail to test@example.com.  The account or\ndomain may not exist, they may be blacklisted, or missing the proper dns\nentries.')}
+2026-07-04 19:22:11,728 - httpx - INFO - HTTP Request: POST http://testserver/api/v1/wallet/fund?amount=500 "HTTP/1.1 200 OK"
+2026-07-04 19:22:13,056 - httpx - INFO - HTTP Request: POST https://enterprise.mobilenig.com/api/v2/services/ "HTTP/1.1 200 OK"
+2026-07-04 19:22:13,079 - httpx - INFO - HTTP Request: POST http://testserver/api/v1/services/airtime "HTTP/1.1 400 Bad Request"
+2026-07-04 19:39:24,391 - root - INFO - Starting Application...
+2026-07-04 19:39:24,391 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-04 19:39:40,501 - root - INFO - Starting Application...
+2026-07-04 19:39:40,501 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-04 19:40:21,997 - root - INFO - Starting Application...
+2026-07-04 19:40:21,997 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-04 19:40:51,295 - root - INFO - Starting Application...
+2026-07-04 19:40:51,296 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-04 19:41:26,833 - root - INFO - Starting Application...
+2026-07-04 19:41:26,833 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-04 19:41:27,366 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-04 19:53:56,899 - root - INFO - Starting Application...
+2026-07-04 19:53:56,900 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-04 19:53:57,761 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-04 19:53:59,765 - root - INFO - Starting Application...
+2026-07-04 19:53:59,766 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-04 19:54:00,178 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-04 19:54:03,443 - root - INFO - Starting Application...
+2026-07-04 19:54:03,443 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-04 19:54:03,749 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-04 19:54:04,094 - httpx - INFO - HTTP Request: POST http://testserver/api/v1/auth/login/access-token "HTTP/1.1 400 Bad Request"
+2026-07-04 19:54:59,186 - app.services.email_service - INFO - Email sent successfully to techio.com.ng@gmail.com with template user_welcome.html
+2026-07-04 19:55:02,026 - app.services.email_service - INFO - Email sent successfully to techio.com.ng@gmail.com with template email_verification.html
+2026-07-04 19:55:09,057 - WDM - INFO - ====== WebDriver manager ======
+2026-07-04 19:55:09,219 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-07-04 19:55:10,338 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-07-04 19:55:11,172 - WDM - INFO - Driver [/home/rehack/.wdm/drivers/chromedriver/linux64/148.0.7778.178/chromedriver-linux64/chromedriver] found in cache
+2026-07-04 19:55:11,761 - app.services.automation_service - INFO - High-Performance WebDriver initialized (Singleton).
+2026-07-04 19:55:11,775 - app.services.automation_service - INFO - Navigating to SLTV Login...
+2026-07-04 19:55:18,328 - app.services.automation_service - INFO - Normal click failed. Forcing JS Click...
+2026-07-04 19:55:21,986 - app.services.automation_service - INFO - Login successful. Navigating to Recharge page...
+2026-07-04 19:55:22,101 - app.services.automation_service - INFO - Searching for IUC: SB101231017219
+2026-07-04 19:55:25,556 - app.services.automation_service - INFO - Extracting user details...
+2026-07-04 19:55:25,623 - app.services.automation_service - INFO - Detail [can_id]: 177310000002
+2026-07-04 19:55:25,666 - app.services.automation_service - INFO - Detail [subscriber_name]: izunna paulinus nwaikwu
+2026-07-04 19:55:25,714 - app.services.automation_service - INFO - Detail [mobile_no]: 7034488027
+2026-07-04 19:55:25,755 - app.services.automation_service - INFO - Detail [email]: Iz-1@gmail.com
+2026-07-04 19:55:25,798 - app.services.automation_service - INFO - Detail [address]: ,,,,-42010
+2026-07-04 19:55:41,755 - app.services.automation_service - INFO - Navigating to SLTV Login...
+2026-07-04 19:55:44,321 - app.services.automation_service - INFO - Normal click failed. Forcing JS Click...
+2026-07-04 19:55:45,334 - app.services.automation_service - INFO - Login successful. Navigating to Recharge page...
+2026-07-04 19:55:45,465 - app.services.automation_service - INFO - Searching for IUC: SB101231017219
+2026-07-04 19:55:48,406 - app.services.automation_service - INFO - Extracting user details...
+2026-07-04 19:55:48,457 - app.services.automation_service - INFO - Detail [can_id]: 177310000002
+2026-07-04 19:55:48,481 - app.services.automation_service - INFO - Detail [subscriber_name]: izunna paulinus nwaikwu
+2026-07-04 19:55:48,503 - app.services.automation_service - INFO - Detail [mobile_no]: 7034488027
+2026-07-04 19:55:48,534 - app.services.automation_service - INFO - Detail [email]: Iz-1@gmail.com
+2026-07-04 19:55:48,554 - app.services.automation_service - INFO - Detail [address]: ,,,,-42010
+2026-07-05 00:36:39,136 - app.services.email_service - INFO - Email sent successfully to techio.com.ng@gmail.com with template wallet_funded.html
+2026-07-05 00:37:01,161 - app.services.automation_service - INFO - Navigating to SLTV Login...
+2026-07-05 00:37:01,185 - app.services.automation_service - WARNING - Driver crashed or invalid session (Attempt 1/2): Message: invalid session id; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#invalidsessionidexception
+Stacktrace:
+#0 0x59dcfff1b16a <unknown>
+#1 0x59dcff918470 <unknown>
+#2 0x59dcff95f44d <unknown>
+#3 0x59dcff9926a6 <unknown>
+#4 0x59dcff98ca50 <unknown>
+#5 0x59dcff98c20c <unknown>
+#6 0x59dcff8ddd45 <unknown>
+#7 0x59dcffee0a0b <unknown>
+#8 0x59dcffee392d <unknown>
+#9 0x59dcffecd948 <unknown>
+#10 0x59dcffee44c0 <unknown>
+#11 0x59dcffeb4560 <unknown>
+#12 0x59dcff8db5e6 <unknown>
+#13 0x780bab22a1ca <unknown>
+#14 0x780bab22a28b __libc_start_main
+#15 0x59dcff89a82a _start
+
+2026-07-05 00:37:01,188 - WDM - INFO - ====== WebDriver manager ======
+2026-07-05 00:37:01,310 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-07-05 00:37:03,822 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-07-05 00:37:04,676 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-07-05 00:37:06,677 - WDM - INFO - WebDriver version 148.0.7778.178 selected
+2026-07-05 00:37:06,688 - WDM - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/148.0.7778.178/linux64/chromedriver-linux64.zip
+2026-07-05 00:37:06,688 - WDM - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/148.0.7778.178/linux64/chromedriver-linux64.zip
+2026-07-05 00:37:07,234 - WDM - INFO - Driver downloading response is 200
+2026-07-05 00:37:09,823 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-07-05 00:37:10,613 - WDM - INFO - Driver has been saved in cache [/home/rehack/.wdm/drivers/chromedriver/linux64/148.0.7778.178]
+2026-07-05 00:37:11,159 - app.services.automation_service - INFO - High-Performance WebDriver initialized (Singleton).
+2026-07-05 00:37:11,172 - app.services.automation_service - INFO - Navigating to SLTV Login...
+2026-07-05 00:37:15,233 - app.services.automation_service - INFO - Normal click failed. Forcing JS Click...
+2026-07-05 00:37:17,527 - app.services.automation_service - INFO - Login successful. Navigating to Recharge page...
+2026-07-05 00:37:17,732 - app.services.automation_service - INFO - Searching for IUC: Sb201202794
+2026-07-05 00:37:20,598 - app.services.automation_service - INFO - Extracting user details...
+2026-07-05 00:37:20,669 - app.services.automation_service - INFO - Detail [can_id]: 177310000476
+2026-07-05 00:37:20,713 - app.services.automation_service - INFO - Detail [subscriber_name]: Victor Barnabas
+2026-07-05 00:37:20,755 - app.services.automation_service - INFO - Detail [mobile_no]: 9134803625
+2026-07-05 00:37:20,795 - app.services.automation_service - INFO - Detail [email]: victorbarnabas24@gmail.com
+2026-07-05 00:37:20,839 - app.services.automation_service - INFO - Detail [address]: ,,,,-
+2026-07-05 00:38:12,602 - app.services.automation_service - INFO - Navigating to SLTV Login...
+2026-07-05 00:38:15,197 - app.services.automation_service - INFO - Normal click failed. Forcing JS Click...
+2026-07-05 00:38:16,098 - app.services.automation_service - INFO - Login successful. Navigating to Recharge page...
+2026-07-05 00:38:16,238 - app.services.automation_service - INFO - Processing Purchase for: Sb201202794
+2026-07-05 00:38:19,932 - app.services.automation_service - INFO - Selecting Plan...
+2026-07-05 00:38:20,102 - app.services.automation_service - ERROR - TV purchase failed: No active recharge package is currently available for this subscriber.
+2026-07-05 00:38:20,102 - app.api.v1.endpoints.services - ERROR - TV purchase failed
+Traceback (most recent call last):
+  File "/home/rehack/sltv vtu/app/api/v1/endpoints/services.py", line 646, in purchase_tv
+    raise Exception("Local Automation returned False (failed)")
+Exception: Local Automation returned False (failed)
+2026-07-05 00:38:22,609 - app.services.email_service - INFO - Email sent successfully to techio.com.ng@gmail.com with template purchase_failed.html
+2026-07-05 00:38:24,713 - app.services.email_service - INFO - Email sent successfully to techio.com.ng@gmail.com with template refund_processed.html
+2026-07-05 00:40:23,941 - app.services.automation_service - INFO - Navigating to SLTV Login...
+2026-07-05 00:40:26,429 - app.services.automation_service - INFO - Normal click failed. Forcing JS Click...
+2026-07-05 00:40:27,348 - app.services.automation_service - INFO - Login successful. Navigating to Recharge page...
+2026-07-05 00:40:27,511 - app.services.automation_service - INFO - Searching for IUC: Sb201202794
+2026-07-05 00:40:30,163 - app.services.automation_service - INFO - Extracting user details...
+2026-07-05 00:40:30,284 - app.services.automation_service - INFO - Detail [can_id]: 177310000476
+2026-07-05 00:40:30,327 - app.services.automation_service - INFO - Detail [subscriber_name]: Victor Barnabas
+2026-07-05 00:40:30,350 - app.services.automation_service - INFO - Detail [mobile_no]: 9134803625
+2026-07-05 00:40:30,380 - app.services.automation_service - INFO - Detail [email]: victorbarnabas24@gmail.com
+2026-07-05 00:40:30,411 - app.services.automation_service - INFO - Detail [address]: ,,,,-
+2026-07-05 00:44:04,161 - root - INFO - Starting Application...
+2026-07-05 00:44:04,161 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-05 00:44:04,638 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-05 00:44:05,836 - root - INFO - Starting Application...
+2026-07-05 00:44:05,836 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-05 00:44:06,240 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-05 00:45:37,828 - root - INFO - Starting Application...
+2026-07-05 00:45:37,828 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-05 00:45:38,462 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-05 00:52:00,499 - root - INFO - Starting Application...
+2026-07-05 00:52:00,500 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-05 00:52:01,041 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-05 00:53:23,053 - WDM - INFO - ====== WebDriver manager ======
+2026-07-05 00:53:23,199 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-07-05 00:53:24,125 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-07-05 00:53:24,948 - WDM - INFO - Driver [/home/rehack/.wdm/drivers/chromedriver/linux64/148.0.7778.178/chromedriver] found in cache
+2026-07-05 00:53:25,476 - app.services.automation_service - INFO - High-Performance WebDriver initialized (Singleton).
+2026-07-05 00:53:25,489 - app.services.automation_service - INFO - Navigating to SLTV Login...
+2026-07-05 00:53:30,794 - app.services.automation_service - INFO - Login successful. Navigating to Recharge page...
+2026-07-05 00:53:30,978 - app.services.automation_service - INFO - Searching for IUC: Sb201202794
+2026-07-05 00:53:34,288 - app.services.automation_service - INFO - Extracting user details...
+2026-07-05 00:53:34,353 - app.services.automation_service - INFO - Detail [can_id]: 177310000476
+2026-07-05 00:53:34,396 - app.services.automation_service - INFO - Detail [subscriber_name]: Victor Barnabas
+2026-07-05 00:53:34,432 - app.services.automation_service - INFO - Detail [mobile_no]: 9134803625
+2026-07-05 00:53:34,478 - app.services.automation_service - INFO - Detail [email]: victorbarnabas24@gmail.com
+2026-07-05 00:53:34,514 - app.services.automation_service - INFO - Detail [address]: ,,,,-
+2026-07-05 00:54:05,832 - app.services.automation_service - INFO - Navigating to SLTV Login...
+2026-07-05 00:54:08,335 - app.services.automation_service - INFO - Normal click failed. Forcing JS Click...
+2026-07-05 00:54:09,285 - app.services.automation_service - INFO - Login successful. Navigating to Recharge page...
+2026-07-05 00:54:09,450 - app.services.automation_service - INFO - Processing Purchase for: Sb201202794
+2026-07-05 00:54:13,110 - app.services.automation_service - INFO - Selecting Plan...
+2026-07-05 00:54:13,315 - app.services.automation_service - ERROR - TV purchase failed: No active recharge package is currently available for this subscriber.
+2026-07-05 00:54:13,316 - app.api.v1.endpoints.services - ERROR - TV purchase failed
+Traceback (most recent call last):
+  File "/home/rehack/sltv vtu/app/api/v1/endpoints/services.py", line 678, in purchase_tv
+    raise Exception("Local Automation returned False (failed)")
+Exception: Local Automation returned False (failed)
+2026-07-05 00:54:40,059 - app.services.automation_service - INFO - Navigating to SLTV Login...
+2026-07-05 00:54:42,566 - app.services.automation_service - INFO - Normal click failed. Forcing JS Click...
+2026-07-05 00:54:43,424 - app.services.automation_service - INFO - Login successful. Navigating to Recharge page...
+2026-07-05 00:54:43,593 - app.services.automation_service - INFO - Processing Purchase for: Sb201202794
+2026-07-05 00:54:46,857 - app.services.automation_service - INFO - Selecting Plan...
+2026-07-05 00:54:47,004 - app.services.automation_service - ERROR - TV purchase failed: No active recharge package is currently available for this subscriber.
+2026-07-05 00:54:47,005 - app.api.v1.endpoints.services - ERROR - TV purchase failed
+Traceback (most recent call last):
+  File "/home/rehack/sltv vtu/app/api/v1/endpoints/services.py", line 678, in purchase_tv
+    raise Exception("Local Automation returned False (failed)")
+Exception: Local Automation returned False (failed)
+2026-07-05 01:05:42,405 - root - INFO - Starting Application...
+2026-07-05 01:05:42,405 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-05 01:05:42,796 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-07 08:37:07,158 - root - INFO - Starting Application...
+2026-07-07 08:37:07,159 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:37:07,628 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-07 08:42:54,422 - WDM - INFO - ====== WebDriver manager ======
+2026-07-07 08:42:54,498 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-07-07 08:42:55,084 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-07-07 08:42:55,583 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-07-07 08:42:56,774 - WDM - INFO - WebDriver version 148.0.7778.178 selected
+2026-07-07 08:42:56,783 - WDM - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/148.0.7778.178/linux64/chromedriver-linux64.zip
+2026-07-07 08:42:56,783 - WDM - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/148.0.7778.178/linux64/chromedriver-linux64.zip
+2026-07-07 08:42:57,231 - WDM - INFO - Driver downloading response is 200
+2026-07-07 08:43:00,347 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2026-07-07 08:43:00,974 - WDM - INFO - Driver has been saved in cache [/home/rehack/.wdm/drivers/chromedriver/linux64/148.0.7778.178]
+2026-07-07 08:43:01,329 - app.services.automation_service - INFO - High-Performance WebDriver initialized (Singleton).
+2026-07-07 08:43:01,337 - app.services.automation_service - INFO - Navigating to SLTV Login...
+2026-07-07 08:43:05,084 - app.services.automation_service - INFO - Normal click failed. Forcing JS Click...
+2026-07-07 08:43:08,505 - app.services.automation_service - INFO - Login successful. Navigating to Recharge page...
+2026-07-07 08:43:08,576 - app.services.automation_service - INFO - Searching for IUC: Sb201202794
+2026-07-07 08:43:10,007 - app.services.automation_service - INFO - Extracting user details...
+2026-07-07 08:43:10,037 - app.services.automation_service - INFO - Detail [can_id]: 177310000476
+2026-07-07 08:43:10,052 - app.services.automation_service - INFO - Detail [subscriber_name]: Victor Barnabas
+2026-07-07 08:43:10,067 - app.services.automation_service - INFO - Detail [mobile_no]: 9134803625
+2026-07-07 08:43:10,081 - app.services.automation_service - INFO - Detail [email]: victorbarnabas24@gmail.com
+2026-07-07 08:43:10,096 - app.services.automation_service - INFO - Detail [address]: ,,,,-
+2026-07-07 08:43:18,716 - app.services.automation_service - INFO - Navigating to SLTV Login...
+2026-07-07 08:43:21,581 - app.services.automation_service - INFO - Normal click failed. Forcing JS Click...
+2026-07-07 08:43:22,521 - app.services.automation_service - INFO - Login successful. Navigating to Recharge page...
+2026-07-07 08:43:22,608 - app.services.automation_service - INFO - Processing Purchase for: Sb201202794
+2026-07-07 08:43:25,796 - app.services.automation_service - INFO - Selecting Plan...
+2026-07-07 08:43:25,862 - app.services.automation_service - ERROR - TV purchase failed: No active recharge package is currently available for this subscriber.
+2026-07-07 08:43:25,862 - app.api.v1.endpoints.services - ERROR - TV purchase failed
+Traceback (most recent call last):
+  File "/home/rehack/sltv vtu/app/api/v1/endpoints/services.py", line 678, in purchase_tv
+    raise Exception("Local Automation returned False (failed)")
+Exception: Local Automation returned False (failed)
+2026-07-07 08:51:41,286 - root - INFO - Starting Application...
+2026-07-07 08:51:41,286 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:51:41,693 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-07 08:51:42,980 - root - INFO - Starting Application...
+2026-07-07 08:51:42,980 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:51:44,896 - root - INFO - Starting Application...
+2026-07-07 08:51:44,896 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:51:52,204 - root - INFO - Starting Application...
+2026-07-07 08:51:52,204 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:51:55,260 - root - INFO - Starting Application...
+2026-07-07 08:51:55,260 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:52:06,295 - root - INFO - Starting Application...
+2026-07-07 08:52:06,296 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:52:07,774 - root - INFO - Starting Application...
+2026-07-07 08:52:07,774 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:52:18,182 - root - INFO - Starting Application...
+2026-07-07 08:52:18,182 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:52:20,855 - root - INFO - Starting Application...
+2026-07-07 08:52:20,856 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:53:39,544 - root - INFO - Starting Application...
+2026-07-07 08:53:39,544 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:53:41,158 - root - INFO - Starting Application...
+2026-07-07 08:53:41,158 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:53:45,887 - root - INFO - Starting Application...
+2026-07-07 08:53:45,887 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:53:53,414 - root - INFO - Starting Application...
+2026-07-07 08:53:53,414 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:54:02,726 - root - INFO - Starting Application...
+2026-07-07 08:54:02,726 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:54:21,374 - root - INFO - Starting Application...
+2026-07-07 08:54:21,374 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:54:25,134 - root - INFO - Starting Application...
+2026-07-07 08:54:25,135 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:54:25,471 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-07 08:54:42,725 - root - INFO - Starting Application...
+2026-07-07 08:54:42,725 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:54:43,053 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-07 08:54:44,775 - root - INFO - Starting Application...
+2026-07-07 08:54:44,775 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:54:45,143 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-07 08:54:48,103 - root - INFO - Starting Application...
+2026-07-07 08:54:48,103 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:54:50,410 - root - INFO - Starting Application...
+2026-07-07 08:54:50,410 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:54:50,714 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-07 08:54:52,917 - root - INFO - Starting Application...
+2026-07-07 08:54:52,917 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:54:53,601 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-07 08:54:56,059 - root - INFO - Starting Application...
+2026-07-07 08:54:56,059 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:54:56,551 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-07 08:54:58,320 - root - INFO - Starting Application...
+2026-07-07 08:54:58,320 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:54:59,453 - root - INFO - Starting Application...
+2026-07-07 08:54:59,453 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:55:10,296 - root - INFO - Starting Application...
+2026-07-07 08:55:10,297 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:55:10,655 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-07 08:55:11,539 - root - INFO - Starting Application...
+2026-07-07 08:55:11,539 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 08:55:11,834 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-07-07 09:17:22,126 - root - INFO - Starting Application...
+2026-07-07 09:17:22,129 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
+2026-07-07 09:17:22,487 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates

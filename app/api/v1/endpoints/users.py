@@ -51,8 +51,8 @@ async def create_user(
     verification_token = security.create_email_token(user.email, "verification")
 
     # Use a default URL if FRONTEND_URL is not set (or add it to config)
-    frontend_url = getattr(settings, "FRONTEND_URL", "http://localhost:3000")
-    verification_link = f"{frontend_url}/verify-email?token={verification_token}"
+    frontend_url = getattr(settings, "FRONTEND_URL", "https://ezyvtu.com.ng")
+    verification_link = f"{frontend_url}/verify_email?token={verification_token}"
 
     EmailService.send_email_verification(background_tasks, user.email, user.full_name, verification_link)
 

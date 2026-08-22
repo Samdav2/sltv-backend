@@ -9,14 +9,110 @@ from app.services.automation_service import VTUAutomator
 from app.services.mobilenig_service import mobilenig_service
 from app.services.vtpass_service import vtpass_service
 from app.services.ebills_service import ebills_service
+from app.services.email_service import EmailService
 from app.models.service_price import ServicePrice, ProfitType
 from sqlmodel import select
 
 from datetime import datetime
+import logging
 import random
 import string
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter()
+
+async def _handle_service_failure(
+    *,
+    transaction: Transaction,
+    wallet,
+    wallet_repo: WalletRepository,
+    background_tasks: BackgroundTasks,
+    current_user: User,
+    service_name: str,
+    amount: float,
+    reference: str,
+    error: Exception | str,
+) -> None:
+    error_text = str(error)
+    transaction.status = "failed"
+    transaction.meta_data += f" | Error: {error_text}"
+    await wallet_repo.update_transaction(transaction)
+
+    EmailService.send_purchase_failed_email(
+        background_tasks,
+        current_user.email,
+        current_user.full_name,
+        service_name,
+        amount,
+        reference,
+        error_text,
+    )
+
+    wallet.balance += amount
+    await wallet_repo.update(wallet, {"balance": wallet.balance})
+
+    refund_trans_id = generate_trans_id("REFUND")
+    refund_transaction = Transaction(
+        wallet_id=wallet.id,
+        user_id=current_user.id,
+        trans_id=refund_trans_id,
+        amount=amount,
+        type="credit",
+        status="success",
+        reference=f"REFUND-{transaction.id}",
+        service_type="refund",
+        meta_data=f"Refund for failed {service_name} transaction {transaction.id}",
+        profit=0.0,
+    )
+    await wallet_repo.create_transaction(refund_transaction)
+
+    EmailService.send_refund_email(
+        background_tasks,
+        current_user.email,
+        current_user.full_name,
+        service_name,
+        amount,
+        refund_transaction.reference,
+    )
+
+
+def should_refund_on_failure(transaction: Transaction) -> bool:
+    """Only refund when the purchase never reached a successful terminal state."""
+    return transaction.status != "success"
+
+
+async def _finalize_service_success(
+    *,
+    transaction: Transaction,
+    wallet_repo: WalletRepository,
+    background_tasks: BackgroundTasks,
+    current_user: User,
+    service_name: str,
+    amount: float,
+    reference: str,
+    recipient: str,
+    result_message: str,
+) -> None:
+    transaction.status = "success"
+    transaction.meta_data += f" | Result: {result_message}"
+    await wallet_repo.update_transaction(transaction)
+
+    try:
+        EmailService.send_purchase_success_email(
+            background_tasks,
+            current_user.email,
+            current_user.full_name,
+            service_name,
+            amount,
+            reference,
+            recipient,
+        )
+    except Exception as email_error:
+        logger.exception("Purchase success email notification failed")
+        transaction.meta_data += f" | Notification Warning: {email_error}"
+        await wallet_repo.update_transaction(transaction)
+
 
 def generate_trans_id(prefix: str) -> str:
     """Generates a unique transaction ID <= 15 chars for MobileNig compatibility"""
@@ -97,7 +193,6 @@ async def purchase_airtime(
     await wallet_repo.create_transaction(transaction)
 
     # Execute immediately for now as MobileNig is fast API
-    from app.services.email_service import EmailService
     try:
         payload = {
             "service_id": request.network,
@@ -110,69 +205,37 @@ async def purchase_airtime(
             "address": current_user.profile.address if current_user.profile else ""
         }
         response = await mobilenig_service.purchase_service(payload)
-        transaction.status = "success"
-        transaction.meta_data += f" | Response: {response}"
-        await wallet_repo.update_transaction(transaction)
-
-        # Send Success Email
-        EmailService.send_purchase_success_email(
-            background_tasks,
-            current_user.email,
-            current_user.full_name,
-            f"Airtime {request.network} {request.amount}",
-            selling_price,
-            transaction.reference,
-            request.phone_number
+        await _finalize_service_success(
+            transaction=transaction,
+            wallet_repo=wallet_repo,
+            background_tasks=background_tasks,
+            current_user=current_user,
+            service_name=f"Airtime {request.network} {request.amount}",
+            amount=selling_price,
+            reference=transaction.reference,
+            recipient=request.phone_number,
+            result_message=str(response),
         )
 
     except Exception as e:
-        transaction.status = "failed"
-        transaction.meta_data += f" | Error: {str(e)}"
-        await wallet_repo.update_transaction(transaction)
+        logger.exception("Airtime purchase failed")
+        if should_refund_on_failure(transaction):
+            await _handle_service_failure(
+                transaction=transaction,
+                wallet=wallet,
+                wallet_repo=wallet_repo,
+                background_tasks=background_tasks,
+                current_user=current_user,
+                service_name=f"Airtime {request.network} {request.amount}",
+                amount=selling_price,
+                reference=transaction.reference,
+                error=e,
+            )
+        else:
+            transaction.meta_data += f" | Post-success error: {e}"
+            await wallet_repo.update_transaction(transaction)
 
-        # Send Failed Email
-        EmailService.send_purchase_failed_email(
-            background_tasks,
-            current_user.email,
-            current_user.full_name,
-            f"Airtime {request.network} {request.amount}",
-            selling_price,
-            transaction.reference,
-            str(e)
-        )
-
-        # Refund
-        wallet.balance += selling_price
-        await wallet_repo.update(wallet, {"balance": wallet.balance})
-
-        refund_trans_id = generate_trans_id("REFUND")
-        refund_transaction = Transaction(
-            wallet_id=wallet.id,
-            user_id=current_user.id,
-            trans_id=refund_trans_id,
-            amount=selling_price,
-            type="credit",
-            status="success",
-            reference=f"REFUND-{transaction.id}",
-            service_type="refund",
-            meta_data=f"Refund for failed Airtime transaction {transaction.id}",
-            profit=0.0
-        )
-        await wallet_repo.create_transaction(refund_transaction)
-
-        # Send Refund Email
-        EmailService.send_refund_email(
-            background_tasks,
-            current_user.email,
-            current_user.full_name,
-            f"Airtime {request.network} {request.amount}",
-            selling_price,
-            refund_transaction.reference
-        )
-
-        raise HTTPException(status_code=400, detail=f"Transaction failed: {str(e)}")
-
-    return {"message": "Airtime purchase successful", "transaction_id": transaction.id}
+    return {"message": "Airtime purchase processing", "transaction_id": transaction.id}
 
 @router.post("/data")
 async def purchase_data(
@@ -229,7 +292,6 @@ async def purchase_data(
     )
     await wallet_repo.create_transaction(transaction)
 
-    from app.services.email_service import EmailService
     try:
         payload = {
             "service_id": request.plan_id, # Assuming plan_id is the service_id
@@ -241,69 +303,37 @@ async def purchase_data(
             "address": current_user.profile.address if current_user.profile else ""
         }
         response = await mobilenig_service.purchase_service(payload)
-        transaction.status = "success"
-        transaction.meta_data += f" | Response: {response}"
-        await wallet_repo.update_transaction(transaction)
-
-        # Send Success Email
-        EmailService.send_purchase_success_email(
-            background_tasks,
-            current_user.email,
-            current_user.full_name,
-            f"Data {request.network} {request.plan_id}",
-            selling_price,
-            transaction.reference,
-            request.phone_number
+        await _finalize_service_success(
+            transaction=transaction,
+            wallet_repo=wallet_repo,
+            background_tasks=background_tasks,
+            current_user=current_user,
+            service_name=f"Data {request.network} {request.plan_id}",
+            amount=selling_price,
+            reference=transaction.reference,
+            recipient=request.phone_number,
+            result_message=str(response),
         )
 
     except Exception as e:
-        transaction.status = "failed"
-        transaction.meta_data += f" | Error: {str(e)}"
-        await wallet_repo.update_transaction(transaction)
+        logger.exception("Data purchase failed")
+        if should_refund_on_failure(transaction):
+            await _handle_service_failure(
+                transaction=transaction,
+                wallet=wallet,
+                wallet_repo=wallet_repo,
+                background_tasks=background_tasks,
+                current_user=current_user,
+                service_name=f"Data {request.network} {request.plan_id}",
+                amount=selling_price,
+                reference=transaction.reference,
+                error=e,
+            )
+        else:
+            transaction.meta_data += f" | Post-success error: {e}"
+            await wallet_repo.update_transaction(transaction)
 
-        # Send Failed Email
-        EmailService.send_purchase_failed_email(
-            background_tasks,
-            current_user.email,
-            current_user.full_name,
-            f"Data {request.network} {request.plan_id}",
-            selling_price,
-            transaction.reference,
-            str(e)
-        )
-
-        # Refund
-        wallet.balance += selling_price
-        await wallet_repo.update(wallet, {"balance": wallet.balance})
-
-        refund_trans_id = generate_trans_id("REFUND")
-        refund_transaction = Transaction(
-            wallet_id=wallet.id,
-            user_id=current_user.id,
-            trans_id=refund_trans_id,
-            amount=selling_price,
-            type="credit",
-            status="success",
-            reference=f"REFUND-{transaction.id}",
-            service_type="refund",
-            meta_data=f"Refund for failed Data transaction {transaction.id}",
-            profit=0.0
-        )
-        await wallet_repo.create_transaction(refund_transaction)
-
-        # Send Refund Email
-        EmailService.send_refund_email(
-            background_tasks,
-            current_user.email,
-            current_user.full_name,
-            f"Data {request.network} {request.plan_id}",
-            selling_price,
-            refund_transaction.reference
-        )
-
-        raise HTTPException(status_code=400, detail=f"Transaction failed: {str(e)}")
-
-    return {"message": "Data purchase successful", "transaction_id": transaction.id}
+    return {"message": "Data purchase processing", "transaction_id": transaction.id}
 
 def process_electricity_purchase(request: ElectricityRequest, transaction_id: int, wallet_repo: WalletRepository):
     vtu_automator = VTUAutomator()
@@ -417,7 +447,6 @@ async def purchase_electricity(
     )
     await wallet_repo.create_transaction(transaction)
 
-    from app.services.email_service import EmailService
     try:
         # Use user profile phone number if available
         phone_number = "08000000000" # Default
@@ -462,27 +491,22 @@ async def purchase_electricity(
 
             # Check eBills response code
             if response.get("code") == "success":
-                transaction.status = "success"
-                transaction.meta_data += f" | eBills Response: {response}"
-
-                # Extract token if available
-                # Sample response: "token": "1234-5678-9012-3456" inside data
                 data = response.get("data", {})
                 token = data.get("token")
+                success_note = f"eBills Response: {response}"
                 if token:
-                     transaction.meta_data += f" | Token: {token}"
+                    success_note += f" | Token: {token}"
 
-                await wallet_repo.update_transaction(transaction)
-
-                # Send Success Email
-                EmailService.send_purchase_success_email(
-                    background_tasks,
-                    current_user.email,
-                    current_user.full_name,
-                    f"Electricity {request.provider} {request.amount}",
-                    selling_price,
-                    transaction.reference,
-                    f"{request.meter_number} (Token: {token})" if token else request.meter_number
+                await _finalize_service_success(
+                    transaction=transaction,
+                    wallet_repo=wallet_repo,
+                    background_tasks=background_tasks,
+                    current_user=current_user,
+                    service_name=f"Electricity {request.provider} {request.amount}",
+                    amount=selling_price,
+                    reference=transaction.reference,
+                    recipient=f"{request.meter_number} (Token: {token})" if token else request.meter_number,
+                    result_message=success_note,
                 )
             else:
                 raise Exception(f"eBills Error: {response.get('message', 'Unknown error')}")
@@ -505,69 +529,37 @@ async def purchase_electricity(
                 "address": current_user.profile.address if current_user.profile else ""
             }
             response = await mobilenig_service.purchase_service(payload)
-            transaction.status = "success"
-            transaction.meta_data += f" | Response: {response}"
-            await wallet_repo.update_transaction(transaction)
-
-            # Send Success Email
-            EmailService.send_purchase_success_email(
-                background_tasks,
-                current_user.email,
-                current_user.full_name,
-                f"Electricity {request.provider} {request.amount}",
-                selling_price,
-                transaction.reference,
-                request.meter_number
+            await _finalize_service_success(
+                transaction=transaction,
+                wallet_repo=wallet_repo,
+                background_tasks=background_tasks,
+                current_user=current_user,
+                service_name=f"Electricity {request.provider} {request.amount}",
+                amount=selling_price,
+                reference=transaction.reference,
+                recipient=request.meter_number,
+                result_message=str(response),
             )
 
     except Exception as e:
-        transaction.status = "failed"
-        transaction.meta_data += f" | Error: {str(e)}"
-        await wallet_repo.update_transaction(transaction)
+        logger.exception("Electricity purchase failed")
+        if should_refund_on_failure(transaction):
+            await _handle_service_failure(
+                transaction=transaction,
+                wallet=wallet,
+                wallet_repo=wallet_repo,
+                background_tasks=background_tasks,
+                current_user=current_user,
+                service_name=f"Electricity {request.provider} {request.amount}",
+                amount=selling_price,
+                reference=transaction.reference,
+                error=e,
+            )
+        else:
+            transaction.meta_data += f" | Post-success error: {e}"
+            await wallet_repo.update_transaction(transaction)
 
-        # Send Failed Email
-        EmailService.send_purchase_failed_email(
-            background_tasks,
-            current_user.email,
-            current_user.full_name,
-            f"Electricity {request.provider} {request.amount}",
-            selling_price,
-            transaction.reference,
-            str(e)
-        )
-
-        # Refund
-        wallet.balance += selling_price
-        await wallet_repo.update(wallet, {"balance": wallet.balance})
-
-        refund_trans_id = generate_trans_id("REFUND")
-        refund_transaction = Transaction(
-            wallet_id=wallet.id,
-            user_id=current_user.id,
-            trans_id=refund_trans_id,
-            amount=selling_price,
-            type="credit",
-            status="success",
-            reference=f"REFUND-{transaction.id}",
-            service_type="refund",
-            meta_data=f"Refund for failed Electricity transaction {transaction.id}",
-            profit=0.0
-        )
-        await wallet_repo.create_transaction(refund_transaction)
-
-        # Send Refund Email
-        EmailService.send_refund_email(
-            background_tasks,
-            current_user.email,
-            current_user.full_name,
-            f"Electricity {request.provider} {request.amount}",
-            selling_price,
-            refund_transaction.reference
-        )
-
-        raise HTTPException(status_code=400, detail=f"Transaction failed: {str(e)}")
-
-    return {"message": "Electricity purchase successful", "transaction_id": transaction.id}
+    return {"message": "Electricity purchase processing", "transaction_id": transaction.id}
 
 def process_tv_purchase(request: TVRequest, transaction_id: int, wallet_repo: WalletRepository):
     vtu_service = VTUAutomator()
@@ -661,8 +653,6 @@ async def purchase_tv(
     )
     await wallet_repo.create_transaction(transaction)
 
-    from app.services.email_service import EmailService
-
     def run_automation():
         vtu_service = VTUAutomator()
         return vtu_service.purchase_tv(request)
@@ -671,19 +661,16 @@ async def purchase_tv(
         result_message = await run_in_threadpool(run_automation)
 
         if result_message is not False:
-            transaction.status = "success"
-            transaction.meta_data += f" | Local Automation Result: {result_message}"
-            await wallet_repo.update_transaction(transaction)
-
-            # Send Success Email
-            EmailService.send_purchase_success_email(
-                background_tasks,
-                current_user.email,
-                current_user.full_name,
-                f"TV {request.provider} {request.amount}",
-                request.amount,
-                transaction.reference,
-                request.smart_card_number
+            await _finalize_service_success(
+                transaction=transaction,
+                wallet_repo=wallet_repo,
+                background_tasks=background_tasks,
+                current_user=current_user,
+                service_name=f"TV {request.provider} {request.amount}",
+                amount=request.amount,
+                reference=transaction.reference,
+                recipient=request.smart_card_number,
+                result_message=str(result_message),
             )
 
             return {"status": "success", "message": result_message, "transaction_id": transaction.id}
@@ -691,48 +678,26 @@ async def purchase_tv(
             raise Exception("Local Automation returned False (failed)")
 
     except Exception as e:
-        transaction.status = "failed"
-        transaction.meta_data += f" | Error: {str(e)}"
-        await wallet_repo.update_transaction(transaction)
+        logger.exception("TV purchase failed")
+        if should_refund_on_failure(transaction):
+            await _handle_service_failure(
+                transaction=transaction,
+                wallet=wallet,
+                wallet_repo=wallet_repo,
+                background_tasks=background_tasks,
+                current_user=current_user,
+                service_name=f"TV {request.provider} {request.amount}",
+                amount=request.amount,
+                reference=transaction.reference,
+                error=e,
+            )
+        else:
+            transaction.meta_data += f" | Post-success error: {e}"
+            await wallet_repo.update_transaction(transaction)
 
-        # Send Failed Email
-        EmailService.send_purchase_failed_email(
-            background_tasks,
-            current_user.email,
-            current_user.full_name,
-            f"TV {request.provider} {request.amount}",
-            request.amount,
-            transaction.reference,
-            str(e)
+        raise HTTPException(
+            status_code=502,
+            detail=str(e),
         )
 
-        # Refund
-        wallet.balance += request.amount
-        await wallet_repo.update(wallet, {"balance": wallet.balance})
-
-        refund_trans_id = generate_trans_id("REFUND")
-        refund_transaction = Transaction(
-            wallet_id=wallet.id,
-            user_id=current_user.id,
-            trans_id=refund_trans_id,
-            amount=request.amount,
-            type="credit",
-            status="success",
-            reference=f"REFUND-{transaction.id}",
-            service_type="refund",
-            meta_data=f"Refund for failed TV transaction {transaction.id}",
-            profit=0.0
-        )
-        await wallet_repo.create_transaction(refund_transaction)
-
-        # Send Refund Email
-        EmailService.send_refund_email(
-            background_tasks,
-            current_user.email,
-            current_user.full_name,
-            f"TV {request.provider} {request.amount}",
-            request.amount,
-            refund_transaction.reference
-        )
-
-        raise HTTPException(status_code=400, detail=f"Transaction failed: {str(e)}")
+    return {"status": "processing", "message": "TV purchase processing", "transaction_id": transaction.id}
