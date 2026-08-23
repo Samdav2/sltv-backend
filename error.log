@@ -354,3 +354,14 @@ Exception: Local Automation returned False (failed)
 2026-07-07 09:17:22,126 - root - INFO - Starting Application...
 2026-07-07 09:17:22,129 - root - INFO - Logging to: /home/rehack/sltv vtu/error.log
 2026-07-07 09:17:22,487 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/rehack/sltv vtu/app/templates
+2026-08-23 16:29:02,913 - root - INFO - Starting Application...
+2026-08-23 16:29:02,913 - root - INFO - Logging to: /home/hp/Projects/sltv vtu/error.log
+2026-08-23 16:29:03,287 - app.services.email_service - INFO - SMTP Email Service initialized. Reading templates from: /home/hp/Projects/sltv vtu/app/templates
+2026-08-23 16:29:06,651 - app.services.email_service - INFO - Email sent successfully to adoxop_test_integrated_2@gmail.com with template user_welcome.html
+2026-08-23 16:29:09,860 - app.services.email_service - INFO - Email sent successfully to adoxop_test_integrated_2@gmail.com with template email_verification.html
+2026-08-23 16:29:09,863 - httpx - INFO - HTTP Request: POST http://testserver/api/v1/users/ "HTTP/1.1 200 OK"
+2026-08-23 16:29:10,268 - httpx - INFO - HTTP Request: POST http://testserver/api/v1/auth/login/access-token "HTTP/1.1 200 OK"
+2026-08-23 16:29:10,314 - httpx - INFO - HTTP Request: GET http://testserver/api/v1/profile/me "HTTP/1.1 404 Not Found"
+2026-08-23 16:29:10,337 - httpx - INFO - HTTP Request: POST http://testserver/api/v1/profile/me "HTTP/1.1 200 OK"
+2026-08-23 16:29:10,374 - httpx - INFO - HTTP Request: GET http://testserver/api/v1/wallet/balance "HTTP/1.1 404 Not Found"
+2026-08-23 16:29:10,379 - httpx - INFO - HTTP Request: GET http://testserver/api/v1/wallet/ "HTTP/1.1 404 Not Found"

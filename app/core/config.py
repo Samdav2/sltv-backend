@@ -4,6 +4,43 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+def ensure_dev_certs_exist() -> None:
+    """Auto-generate RSA certificate pair for local dev if missing or empty."""
+    os.makedirs("certs", exist_ok=True)
+    priv_path = os.path.join("certs", "private.pem")
+    pub_path = os.path.join("certs", "public.pem")
+
+    has_priv = os.path.exists(priv_path) and os.path.getsize(priv_path) > 0
+    has_pub = os.path.exists(pub_path) and os.path.getsize(pub_path) > 0
+
+    if not (has_priv and has_pub):
+        try:
+            from cryptography.hazmat.primitives.asymmetric import rsa
+            from cryptography.hazmat.primitives import serialization
+
+            private_key = rsa.generate_private_key(
+                public_exponent=65537,
+                key_size=2048
+            )
+            priv_bytes = private_key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.PKCS8,
+                encryption_algorithm=serialization.NoEncryption()
+            )
+            pub_bytes = private_key.public_key().public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo
+            )
+
+            if not has_priv:
+                with open(priv_path, "wb") as f:
+                    f.write(priv_bytes)
+            if not has_pub:
+                with open(pub_path, "wb") as f:
+                    f.write(pub_bytes)
+        except Exception:
+            pass
+
 class Settings(BaseSettings):
     PROJECT_NAME: str = "VTU Backend"
     API_V1_STR: str = "/api/v1"
@@ -28,6 +65,14 @@ class Settings(BaseSettings):
             return key.replace("\\n", "\n")
         try:
             with open("certs/private.pem", "r") as f:
+                content = f.read()
+                if content.strip():
+                    return content
+        except FileNotFoundError:
+            pass
+        ensure_dev_certs_exist()
+        try:
+            with open("certs/private.pem", "r") as f:
                 return f.read()
         except FileNotFoundError:
             return ""
@@ -37,6 +82,14 @@ class Settings(BaseSettings):
         key = os.getenv("JWT_PUBLIC_KEY")
         if key:
             return key.replace("\\n", "\n")
+        try:
+            with open("certs/public.pem", "r") as f:
+                content = f.read()
+                if content.strip():
+                    return content
+        except FileNotFoundError:
+            pass
+        ensure_dev_certs_exist()
         try:
             with open("certs/public.pem", "r") as f:
                 return f.read()
@@ -79,18 +132,10 @@ class Settings(BaseSettings):
     EBILLS_PASSWORD: str = os.getenv("EBILLS_PASSWORD", "")
     EBILLS_BASE_URL: str = "https://ebills.africa/wp-json"
 
-
-    SMTP_HOST: str = os.getenv("SMTP_HOST", "")
-    SMTP_PORT: int = int(os.getenv("SMTP_PORT", 465))
-    SMTP_USER: str = os.getenv("SMTP_USER", "")
-    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
-    SMTP_USE_SSL: bool = True
-    MAIL_FROM: str = os.getenv("MAIL_FROM", "")
-    MAIL_FROM_NAME: str = "EZY VTU"
-
     class Config:
         case_sensitive = True
         env_file = ".env"
         extra = "ignore"
 
 settings = Settings()
+
