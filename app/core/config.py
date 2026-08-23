@@ -53,7 +53,8 @@ class Settings(BaseSettings):
         "http://localhost:8000",
         "https://ezyvtu.com.ng",
         "https://www.ezyvtu.com.ng",
-        "https://sltv-frontend.vercel.app"
+        "https://sltv-frontend.vercel.app",
+        "https://sltv-frontend-tau.vercel.app"
     ]
     ALLOWED_HOSTS: List[str] = ["*"]
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "https://ezyvtu.com.ng")
